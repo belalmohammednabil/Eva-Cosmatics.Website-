@@ -120,7 +120,7 @@ const medicalKnowledgeBase: Record<string, MedicalCondition> = {
   oily: {
     keywords: {
       en: ["oily", "greasy", "shiny", "excess oil", "sebum", "large pores", "t-zone", "sebaceous"],
-      ar: ["دهنية", "زيتية", "لامعة", "زيوت زائدة", "دهون", "مسام ��اسعة", "بشرة دهنية", "الدهون"],
+      ar: ["دهنية", "زيتية", "لامعة", "زيوت زائدة", "ده��ن", "مسام ��اسعة", "بشرة دهنية", "الدهون"],
     },
     diagnosis: {
       en: "Your description indicates seborrhea or excess sebum production. This occurs when sebaceous glands are hyperactive, often due to hormonal factors, genetics, or paradoxically, over-stripping the skin which triggers compensatory oil production. The goal is to balance, not eliminate, sebum.",
@@ -315,6 +315,105 @@ const medicalKnowledgeBase: Record<string, MedicalCondition> = {
       ar: "تساقط الشعر المفاجئ أو المتقطع، أو ألم فروة الرأس، أو القشرة المستمرة التي لا تستجيب للعلاجات المتاحة يجب تقييمها من قبل طبيب جلدية أو أخصائي شعر. حالات مثل الثعلبة البقعية، أو تساقط الشعر الكربي، أو الصلع الوراثي تتطلب تشخيصاً وعلاجاً طبياً.",
     },
   },
+  darkCircles: {
+    keywords: {
+      en: ["dark circles", "under eye", "eye bags", "puffy eyes", "tired eyes", "hollow eyes", "periorbital", "eye area"],
+      ar: ["هالات سوداء", "تحت العين", "انتفاخ العين", "عيون متعبة", "هالات", "منطقة العين", "سواد تحت العين"],
+    },
+    diagnosis: {
+      en: "Periorbital hyperpigmentation (dark circles) has multiple etiologies: genetic predisposition, thin skin revealing underlying vasculature, hyperpigmentation, allergies causing venous congestion, or lifestyle factors such as sleep deprivation and dehydration. Treatment approach depends on the underlying cause.",
+      ar: "فرط التصبغ حول العين (الهالات السوداء) له أسباب متعددة: الاستعداد الوراثي، رقة الجلد الكاشفة للأوعية الدموية، التصبغ، الحساسية المسببة لاحتقان وريدي، أو عوامل نمط الحياة مثل الحرمان من النوم والجفاف. نهج العلاج يعتمد على السبب الكامن.",
+    },
+    recommendedProducts: ["Anti-Ageing Hyaluronic Acid Face Serum", "Dewy Glow Jelly Cream", "Rice Sheet Mask"],
+    sideEffects: {
+      en: [
+        "Eye area skin is extremely thin - use only products formulated for this area",
+        "Apply with ring finger using gentle tapping motions, never rubbing",
+        "Some ingredients may cause milia if too heavy for eye area",
+        "Caffeine products may cause dryness - always follow with hydration",
+      ],
+      ar: [
+        "جلد منطقة العين رقيق جداً - استخدم فقط منتجات مصممة لهذه المنطقة",
+        "ضع بإصبع البنصر بحركات تربيت لطيفة، لا تفرك أبداً",
+        "بعض المكونات قد تسبب الميليا إذا كانت ثقيلة جداً لمنطقة العين",
+        "منتجات الكافيين قد تسبب جفاف - اتبع دائماً بالترطيب",
+      ],
+    },
+    usage: {
+      en: "Eye Care Protocol: Apply eye product after serum but before moisturizer. Use ring finger with gentle tapping in a semicircle from inner to outer corner. Cold compress for 5-10 minutes in the morning can reduce puffiness. Ensure 7-8 hours sleep and adequate hydration.",
+      ar: "بروتوكول العناية بالعين: ضع منتج العين بعد السيروم وقبل المرطب. استخدم إصبع البنصر بتربيت لطيف في نصف دائرة من الزاوية الداخلية للخارجية. كمادات باردة لمدة 5-10 دقائق في الصباح تقلل الانتفاخ. تأكد من 7-8 ساعات نوم وترطيب كافٍ.",
+    },
+    medicalAdvice: {
+      en: "Sudden onset of dark circles with other symptoms may indicate allergies, thyroid issues, or anemia. If dark circles are accompanied by significant hollowing, dermal fillers may be considered. Severe allergic shiners warrant allergy testing. Consult a dermatologist for persistent concerns.",
+      ar: "الظهور المفاجئ للهالات السوداء مع أعراض أخرى قد يشير إلى حساسية، أو مشاكل الغدة الدرقية، أو فقر الدم. إذا كانت الهالات مصحوبة بتجويف كبير، يمكن النظر في الفيلر. الهالات التحسسية الشديدة تستدعي اختبار الحساسية. استشر طبيب جلدية للمخاوف المستمرة.",
+    },
+  },
+  scarring: {
+    keywords: {
+      en: ["scar", "scars", "scarring", "acne scars", "pockmarks", "ice pick", "boxcar", "rolling scars", "hyperpigmentation"],
+      ar: ["ندبة", "ندبات", "آثار حب الشباب", "حفر", "علامات", "تصبغات", "آثار"],
+    },
+    diagnosis: {
+      en: "Acne scarring occurs when inflammatory acne damages dermal collagen. Types include ice pick (deep narrow), boxcar (angular with defined edges), rolling (wave-like depressions), and post-inflammatory hyperpigmentation. Treatment varies by type and severity. Prevention through proper acne management is crucial.",
+      ar: "ندبات حب الشباب تحدث عندما يتلف حب الشباب الالتهابي كولاجين الأدمة. الأنواع تشمل الثقبية (عميقة ضيقة)، والصندوقية (زاوية بحواف محددة)، والمتدحرجة (انخفاضات موجية)، وفرط التصبغ ما بعد الالتهابي. العلاج يختلف حسب النوع والشدة. الوقاية عبر إدارة حب الشباب المناسبة أمر حاسم.",
+    },
+    recommendedProducts: ["Anti-Ageing Hyaluronic Acid Face Serum", "Gentle Exfoliating Toner", "Fermented Soybean Bio Cellulose Mask"],
+    sideEffects: {
+      en: [
+        "Scar treatment requires patience - visible improvement takes 3-6 months minimum",
+        "Over-aggressive treatment can worsen scarring",
+        "Post-inflammatory hyperpigmentation may darken before lightening",
+        "Sun exposure can permanently darken healing scars",
+      ],
+      ar: [
+        "علاج الندبات يتطلب صبراً - التحسن المرئي يستغرق 3-6 أشهر كحد أدنى",
+        "العلاج العدواني المفرط يمكن أن يفاقم الندبات",
+        "فرط التصبغ ما بعد الالتهابي قد يغمق قبل أن يفتح",
+        "التعرض للشمس يمكن أن يغمق الندبات الشافية بشكل دائم",
+      ],
+    },
+    usage: {
+      en: "Scar Protocol: Apply exfoliating toner 2x weekly to accelerate cell turnover. Hyaluronic serum promotes tissue hydration. Fermented mask weekly for collagen support. Critical: Daily SPF to prevent darkening. Results are gradual - consistency over months is essential.",
+      ar: "بروتوكول الندبات: ضع تونر التقشير مرتين أسبوعياً لتسريع تجدد الخلايا. سيروم الهيالورونيك يعزز ترطيب الأنسجة. قناع مخمر أسبوعياً لدعم الكولاجين. حاسم: واقي شمس يومي لمنع الاغمقاق. النتائج تدريجية - الاستمرارية على مدى أشهر ضرورية.",
+    },
+    medicalAdvice: {
+      en: "For significant textural scarring, professional treatments offer superior results: microneedling, fractional laser, chemical peels, subcision, or fillers for deep scars. Consult a dermatologist to determine the most appropriate approach for your scar type.",
+      ar: "للندبات الملمسية الكبيرة، العلاجات المهنية تقدم نتائج أفضل: الميكرونيدلنغ، الليزر الجزئي، التقشير الكيميائي، القطع تحت الجلد، أو الفيلر للندبات العميقة. استشر طبيب جلدية لتحديد النهج الأنسب لنوع ندباتك.",
+    },
+  },
+  pores: {
+    keywords: {
+      en: ["pores", "large pores", "enlarged pores", "visible pores", "pore size", "open pores", "blackheads", "sebaceous filaments"],
+      ar: ["مسام", "مسام واسعة", "مسام كبيرة", "مسام مرئية", "رؤوس سوداء", "فتحات", "حجم المسام"],
+    },
+    diagnosis: {
+      en: "Pore size is primarily determined by genetics and sebum production. Enlarged pores often result from excess sebum, loss of skin elasticity with age, or chronic sun damage. While pore size cannot be permanently changed, their appearance can be minimized through proper care and treatments.",
+      ar: "حجم المسام يتحدد أساساً بالوراثة وإنتاج الدهون. المسام الواسعة غالباً تنتج عن الدهون الزائدة، أو فقدان مرونة الجلد مع السن، أو تلف الشمس المزمن. بينما لا يمكن تغيير حجم المسام بشكل دائم، يمكن تقليل مظهرها من خلال العناية المناسبة والعلاجات.",
+    },
+    recommendedProducts: ["Pore Clearing Clay Mask 2X", "Gentle Exfoliating Toner", "Clarifying Emulsion", "Lychee Soda Bubble Cleanser"],
+    sideEffects: {
+      en: [
+        "Pore strips and harsh extractions can permanently enlarge pores",
+        "Over-exfoliation triggers excess oil production",
+        "Clay masks may be drying - limit to 2-3x weekly",
+        "Products cannot permanently shrink pores - consistent use required",
+      ],
+      ar: [
+        "شرائط المسام والاستخراج القاسي يمكن أن يوسع المسام بشكل دائم",
+        "الإفراط في التقشير يحفز إنتاج الزيوت الزائدة",
+        "أقنعة الطين قد تكون مجففة - حددها بـ 2-3 مرات أسبوعياً",
+        "المنتجات لا يمكن أن تقلص المسام بشكل دائم - الاستخدام المستمر مطلوب",
+      ],
+    },
+    usage: {
+      en: "Pore Protocol: Double cleanse in evening - oil cleanser first, then bubble cleanser. Exfoliating toner 2-3x weekly. Clay mask 2x weekly for deep cleaning. Niacinamide-containing products help regulate sebum. Always finish with lightweight moisturizer - dehydration worsens pore appearance.",
+      ar: "بروتوكول المسام: تنظيف مزدوج في المساء - منظف زيتي أولاً، ثم غسول رغوي. تونر مقشر 2-3 مرات أسبوعياً. قناع الطين مرتين أسبوعياً للتنظيف العميق. المنتجات المحتوية على نياسيناميد تساعد في تنظيم الدهون. أنهِ دائماً بمرطب خفيف - الجفاف يفاقم مظهر المسام.",
+    },
+    medicalAdvice: {
+      en: "For significant pore concerns unresponsive to topical care, professional treatments include: chemical peels, microneedling, laser treatments, or retinoid prescriptions. These stimulate collagen production which improves skin texture and pore appearance over time.",
+      ar: "لمخاوف المسام الكبيرة غير المستجيبة للعناية الموضعية، العلاجات المهنية تشمل: التقشير الكيميائي، الميكرونيدلنغ، علاجات الليزر، أو وصفات الريتينويد. هذه تحفز إنتاج الكولاجين الذي يحسن ملمس الجلد ومظهر المسام مع الوقت.",
+    },
+  },
   bodyCare: {
     keywords: {
       en: ["body", "body lotion", "dry body", "rough skin", "body care", "elbows", "knees", "heels", "keratosis pilaris", "chicken skin"],
@@ -333,7 +432,7 @@ const medicalKnowledgeBase: Record<string, MedicalCondition> = {
         "Consistent daily use required for best results",
       ],
       ar: [
-        "ضعه على بشرة رطبة قليلاً بعد الاستحمام لامتصاص أمثل",
+        "ضعه على بشرة رطبة قليلاً بعد الاستحمام لامتصاص أم��ل",
         "تجنب التطبيق على جلد متشقق أو متهيج",
         "بعض المنتجات المعطرة قد لا تناسب الأشخاص الحساسين",
         "الاستخدام اليومي المستمر مطلوب لأفضل النتائج",
@@ -592,8 +691,8 @@ const AIDermatologist = () => {
       { id: loadingId, type: "loading", content: t("analyzing") },
     ]);
 
-    // Faster response time - reduced from 2000ms to 800ms
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    // Fast response time for professional feel
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
     setMessages((prev) => prev.filter((m) => m.id !== loadingId));
 
@@ -892,7 +991,7 @@ const AIDermatologist = () => {
         </ScrollArea>
 
         {/* Quick Actions */}
-        <div className="px-4 py-2 border-t border-border flex gap-2 overflow-x-auto">
+        <div className="px-4 py-2 border-t border-border flex gap-2 overflow-x-auto scrollbar-hide">
           <Button
             size="sm"
             variant="outline"
@@ -902,6 +1001,66 @@ const AIDermatologist = () => {
           >
             {productsLoading ? <Loader2 className="h-3 w-3 animate-spin me-1" /> : null}
             {t("showAllProducts")}
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="text-xs whitespace-nowrap flex-shrink-0"
+            onClick={() => {
+              const msg = isRTL ? "عندي حب شباب" : "I have acne";
+              setInput(msg);
+            }}
+            disabled={isTyping}
+          >
+            {isRTL ? "حب الشباب" : "Acne"}
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="text-xs whitespace-nowrap flex-shrink-0"
+            onClick={() => {
+              const msg = isRTL ? "بشرتي جافة" : "My skin is dry";
+              setInput(msg);
+            }}
+            disabled={isTyping}
+          >
+            {isRTL ? "بشرة جافة" : "Dry Skin"}
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="text-xs whitespace-nowrap flex-shrink-0"
+            onClick={() => {
+              const msg = isRTL ? "بشرتي حساسة" : "I have sensitive skin";
+              setInput(msg);
+            }}
+            disabled={isTyping}
+          >
+            {isRTL ? "بشرة حساسة" : "Sensitive"}
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="text-xs whitespace-nowrap flex-shrink-0"
+            onClick={() => {
+              const msg = isRTL ? "عندي هالات سوداء" : "I have dark circles";
+              setInput(msg);
+            }}
+            disabled={isTyping}
+          >
+            {isRTL ? "هالات سوداء" : "Dark Circles"}
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="text-xs whitespace-nowrap flex-shrink-0"
+            onClick={() => {
+              const msg = isRTL ? "أريد مكافحة الشيخوخة" : "Anti-aging products";
+              setInput(msg);
+            }}
+            disabled={isTyping}
+          >
+            {isRTL ? "مكافحة الشيخوخة" : "Anti-Aging"}
           </Button>
         </div>
 
