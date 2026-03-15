@@ -120,7 +120,7 @@ const medicalKnowledgeBase: Record<string, MedicalCondition> = {
   oily: {
     keywords: {
       en: ["oily", "greasy", "shiny", "excess oil", "sebum", "large pores", "t-zone", "sebaceous"],
-      ar: ["دهنية", "زيتية", "لامعة", "زيوت زائدة", "دهون", "مسام واسعة", "بشرة دهنية", "الدهون"],
+      ar: ["دهنية", "زيتية", "لامعة", "زيوت زائدة", "دهون", "مسام ��اسعة", "بشرة دهنية", "الدهون"],
     },
     diagnosis: {
       en: "Your description indicates seborrhea or excess sebum production. This occurs when sebaceous glands are hyperactive, often due to hormonal factors, genetics, or paradoxically, over-stripping the skin which triggers compensatory oil production. The goal is to balance, not eliminate, sebum.",
@@ -322,7 +322,7 @@ const medicalKnowledgeBase: Record<string, MedicalCondition> = {
     },
     diagnosis: {
       en: "Body skin, while more resilient than facial skin, also requires proper care. Common concerns include xerosis (dry skin), keratosis pilaris (rough bumps), and areas of hyperkeratosis (thickened skin on elbows, knees, heels). Consistent moisturization and gentle exfoliation are key.",
-      ar: "جلد الجسم، رغم أنه أكثر مرونة من جلد الوجه، يتطلب أيضاً عناية مناسبة. المخاوف الشائعة تشمل الجفاف، وتقرن الجلد الشعري (نتوءات خشنة)، ومناطق فرط التقرن (جلد سميك على الكوعين والركبتين والكعبين). الترطيب المستمر والتقشير اللطيف هما المفتاح.",
+      ar: "جلد الجسم، رغم أنه أكثر مرونة من جلد الوجه، يتطلب أيضاً عناية مناسبة. المخاوف الشائعة تشمل الجفاف، وتقرن الجلد الشعري (نتوءات خشنة)، ومناطق فرط التقرن (جلد سميك على الكوعين والركبتين والكعبين). ��لترطيب المستمر والتقشير اللطيف هما المفتاح.",
     },
     recommendedProducts: ["Aromatica Recipe Body Lotion"],
     sideEffects: {
@@ -482,12 +482,22 @@ const AIDermatologist = () => {
   const [isTyping, setIsTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const isRTL = language === "ar";
 
   const t = (key: keyof typeof translations) => {
     return translations[key][language as "en" | "ar"] || translations[key].en;
   };
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (isOpen && messages.length === 0) {
@@ -559,12 +569,19 @@ const AIDermatologist = () => {
   const handleSend = async () => {
     if (!input.trim() || isTyping) return;
 
+    // Cancel any pending request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+
     const userMessage: Message = {
       id: Date.now().toString(),
       type: "user",
       content: input,
     };
 
+    const userInput = input.trim();
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setIsTyping(true);
@@ -575,11 +592,12 @@ const AIDermatologist = () => {
       { id: loadingId, type: "loading", content: t("analyzing") },
     ]);
 
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    // Faster response time - reduced from 2000ms to 800ms
+    await new Promise((resolve) => setTimeout(resolve, 800));
 
     setMessages((prev) => prev.filter((m) => m.id !== loadingId));
 
-    const matchedConditions = findMatchingConditions(input);
+    const matchedConditions = findMatchingConditions(userInput);
 
     if (matchedConditions.length > 0) {
       const allProductNames = [...new Set(matchedConditions.flatMap((c) => c.recommendedProducts))];
@@ -604,7 +622,7 @@ const AIDermatologist = () => {
       setMessages((prev) => [...prev, botMessage]);
     } else {
       const showAllKeywords = ["all products", "show products", "list products", "what products", "available products", "جميع المنتجات", "كل المنتجات", "عرض المنتجات", "المنتجات المتاحة"];
-      const wantsAllProducts = showAllKeywords.some((kw) => input.toLowerCase().includes(kw));
+      const wantsAllProducts = showAllKeywords.some((kw) => userInput.toLowerCase().includes(kw));
 
       if (wantsAllProducts && products) {
         const allRecommendations: ProductRecommendation[] = products.map((p) => ({
@@ -677,7 +695,7 @@ const AIDermatologist = () => {
 
       setMessages((prev) => [...prev, botMessage]);
       setIsTyping(false);
-    }, 1000);
+    }, 500);
   };
 
   return (

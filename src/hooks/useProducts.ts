@@ -28,6 +28,8 @@ export const useProducts = (limit?: number) => {
       if (error) throw error;
       return (data || []) as Product[];
     },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 10, // 10 minutes (formerly cacheTime)
   });
 };
 
@@ -45,5 +47,7 @@ export const useProduct = (id: string | undefined) => {
       return data as Product | null;
     },
     enabled: !!id,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 10, // 10 minutes
   });
 };

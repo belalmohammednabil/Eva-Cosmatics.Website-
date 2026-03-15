@@ -1,4 +1,4 @@
-import { Facebook, Instagram, Twitter, Youtube, Send } from "lucide-react";
+import { Facebook, Instagram, Twitter, Youtube, Send, Phone, Mail, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -15,9 +15,18 @@ const Footer = () => {
           <div className="md:col-span-1">
             <h3 className="text-xl font-bold mb-4 text-primary cursor-pointer" onClick={() => navigate("/")}>Eva Cosmetics</h3>
             <p className="text-sm text-white/80 mb-3">{t("footerDesc")}</p>
-            <p className="text-sm text-white/70 mb-1">📞 +380 50 123 45 67</p>
-            <p className="text-sm text-white/70 mb-1">📧 bloom@email.com</p>
-            <p className="text-sm text-white/70">📍 Kyiv, Ukraine</p>
+            <p className="text-sm text-white/70 mb-1 flex items-center gap-2">
+              <Phone className="w-4 h-4 text-primary" />
+              +380 50 123 45 67
+            </p>
+            <p className="text-sm text-white/70 mb-1 flex items-center gap-2">
+              <Mail className="w-4 h-4 text-primary" />
+              bloom@email.com
+            </p>
+            <p className="text-sm text-white/70 flex items-center gap-2">
+              <MapPin className="w-4 h-4 text-primary" />
+              Kyiv, Ukraine
+            </p>
           </div>
 
           <div>

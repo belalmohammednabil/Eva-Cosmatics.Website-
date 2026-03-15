@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -12,37 +12,40 @@ interface UserProfile {
 
 export const useProfile = () => {
   const { user } = useAuth();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  const fetchProfile = async () => {
-    if (!user) {
-      setProfile(null);
-      setLoading(false);
-      return;
-    }
-    
-    const { data } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("user_id", user.id)
-      .maybeSingle();
+  const { data: profile, isLoading: loading } = useQuery({
+    queryKey: ["profile", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
 
-    if (data) {
-      setProfile({
-        full_name: data.full_name,
-        email: data.email,
-        phone: data.phone,
-        address: data.address,
-        avatar_url: data.avatar_url,
-      });
-    }
-    setLoading(false);
+      if (error) throw error;
+      
+      if (data) {
+        return {
+          full_name: data.full_name,
+          email: data.email,
+          phone: data.phone,
+          address: data.address,
+          avatar_url: data.avatar_url,
+        } as UserProfile;
+      }
+      return null;
+    },
+    enabled: !!user,
+    staleTime: 1000 * 60 * 2, // 2 minutes
+    gcTime: 1000 * 60 * 5, // 5 minutes
+  });
+
+  const refetch = () => {
+    queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
   };
 
-  useEffect(() => {
-    fetchProfile();
-  }, [user]);
-
-  return { profile, loading, refetch: fetchProfile };
+  return { profile: profile ?? null, loading, refetch };
 };
