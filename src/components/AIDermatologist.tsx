@@ -627,11 +627,9 @@ const AIDermatologist = () => {
     return r.default;
   };
 
-  // Simulate typing effect - realistic delay like a real chat
+  // Simulate typing effect - quick 1.5 second delay
   const simulateTyping = async (): Promise<void> => {
-    // Random delay between 2-4 seconds to feel natural
-    const delay = 2000 + Math.random() * 2000;
-    return new Promise((resolve) => setTimeout(resolve, delay));
+    return new Promise((resolve) => setTimeout(resolve, 1500));
   };
 
   // Send message
@@ -660,78 +658,21 @@ const AIDermatologist = () => {
     setIsLoading(true);
     setIsTyping(true);
 
-    // Add realistic thinking delay
+    // Add typing delay (1.5 seconds)
     await simulateTyping();
 
-    try {
-      // Try API first
-      const apiMessages = messages
-        .filter((m) => m.id !== "welcome")
-        .concat(userMessage)
-        .map((m) => ({
-          role: m.role,
-          content: m.content,
-        }));
+    // Generate response locally
+    const localResponse = generateResponse(userText, currentLang);
+    const assistantMessage: Message = {
+      id: (Date.now() + 1).toString(),
+      role: "assistant",
+      content: localResponse,
+      timestamp: new Date(),
+    };
 
-      const response = await fetch("/api/dermatologist/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: apiMessages, language: currentLang }),
-      });
-
-      if (!response.ok) throw new Error("API failed");
-
-      // Parse streaming response
-      const reader = response.body?.getReader();
-      if (!reader) throw new Error("No reader");
-
-      const decoder = new TextDecoder();
-      let fullContent = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        
-        const text = decoder.decode(value);
-        const lines = text.split("\n");
-        
-        for (const line of lines) {
-          if (line.startsWith("data:")) {
-            const data = line.slice(5).trim();
-            if (data === "[DONE]") continue;
-            try {
-              const parsed = JSON.parse(data);
-              if (parsed.delta) {
-                fullContent += parsed.delta;
-              }
-            } catch {}
-          }
-        }
-      }
-
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: fullContent || generateResponse(userText, currentLang),
-        timestamp: new Date(),
-      };
-
-      setMessages((prev) => [...prev, assistantMessage]);
-    } catch {
-      // Fallback to local response
-      const localResponse = generateResponse(userText, currentLang);
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: localResponse,
-        timestamp: new Date(),
-      };
-
-      setMessages((prev) => [...prev, assistantMessage]);
-    } finally {
-      setIsLoading(false);
-      setIsTyping(false);
-    }
+    setMessages((prev) => [...prev, assistantMessage]);
+    setIsLoading(false);
+    setIsTyping(false);
   };
 
   // Format message with links and bold
