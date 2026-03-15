@@ -10,7 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Minus, Plus, Trash2, ShoppingBag, CheckCircle2 } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, CheckCircle2, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -41,7 +41,7 @@ const CartDrawer = ({ open, onOpenChange }: CartDrawerProps) => {
     if (!profile?.phone || profile.phone.trim() === "") {
       toast({ 
         title: "Phone Number Required", 
-        description: "⚠️ Please add your phone number in your Profile before placing an order.", 
+        description: "Please add your phone number in your Profile before placing an order.", 
         variant: "destructive" 
       });
       return;
@@ -186,7 +186,10 @@ const CartDrawer = ({ open, onOpenChange }: CartDrawerProps) => {
                     </div>
                   )}
                   {!profile?.address && (
-                    <p className="text-xs text-destructive">{t("noAddressWarning") || "⚠️ No shipping address set. You can add one in your Profile."}</p>
+                    <p className="text-xs text-destructive flex items-center gap-1">
+                      <AlertTriangle className="h-3 w-3" />
+                      {t("noAddressWarning") || "No shipping address set. You can add one in your Profile."}
+                    </p>
                   )}
                 </div>
               </div>

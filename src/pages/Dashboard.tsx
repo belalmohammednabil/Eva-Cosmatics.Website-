@@ -15,7 +15,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Package, ShoppingCart, Plus, Pencil, Trash2, Users } from "lucide-react";
+import { Package, ShoppingCart, Plus, Pencil, Trash2, Users, Phone, MapPin } from "lucide-react";
 import { resolveProductImage, productImageOptions } from "@/lib/productImages";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
@@ -368,10 +368,14 @@ const Dashboard = () => {
                               {new Date(order.created_at).toLocaleDateString()} • ${order.total.toFixed(2)}
                             </p>
                             {order.phone_number && (
-                              <p className="text-xs text-muted-foreground mt-1">📞 {order.phone_number}</p>
+                              <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                              <Phone className="h-3 w-3" /> {order.phone_number}
+                            </p>
                             )}
                             {order.shipping_address && (
-                              <p className="text-xs text-muted-foreground mt-1">📍 {order.shipping_address}</p>
+                              <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                              <MapPin className="h-3 w-3" /> {order.shipping_address}
+                            </p>
                             )}
                           </div>
                           <Select value={order.status} onValueChange={(value) => handleUpdateOrderStatus(order.id, value)}>

@@ -328,7 +328,7 @@ const Header = () => {
                     onClick={() => { navigate("/wishlist"); setIsMobileMenuOpen(false); }}
                     className="block w-full text-start py-3 px-4 text-base font-medium text-foreground/80 hover:text-primary hover:bg-primary/5 rounded-xl transition-colors"
                   >
-                    ❤️ {t("wishlist")}
+                    <Heart className="h-4 w-4 fill-primary text-primary" /> {t("wishlist")}
                   </button>
                   <button
                     onClick={() => { navigate("/profile"); setIsMobileMenuOpen(false); }}
