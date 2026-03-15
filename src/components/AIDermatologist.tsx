@@ -120,7 +120,7 @@ const medicalKnowledgeBase: Record<string, MedicalCondition> = {
   oily: {
     keywords: {
       en: ["oily", "greasy", "shiny", "excess oil", "sebum", "large pores", "t-zone", "sebaceous"],
-      ar: ["دهنية", "زيتية", "لامعة", "زيوت زائدة", "دهون", "مسام واسعة", "بشرة دهنية", "الدهون"],
+      ar: ["دهنية", "زيتية", "لامعة", "زيوت زائدة", "دهون", "مسام ��اسعة", "بشرة دهنية", "الدهون"],
     },
     diagnosis: {
       en: "Your description indicates seborrhea or excess sebum production. This occurs when sebaceous glands are hyperactive, often due to hormonal factors, genetics, or paradoxically, over-stripping the skin which triggers compensatory oil production. The goal is to balance, not eliminate, sebum.",
@@ -322,7 +322,7 @@ const medicalKnowledgeBase: Record<string, MedicalCondition> = {
     },
     diagnosis: {
       en: "Body skin, while more resilient than facial skin, also requires proper care. Common concerns include xerosis (dry skin), keratosis pilaris (rough bumps), and areas of hyperkeratosis (thickened skin on elbows, knees, heels). Consistent moisturization and gentle exfoliation are key.",
-      ar: "جلد الجسم، رغم أنه أكثر مرونة من جلد الوجه، يتطلب أيضاً عناية مناسبة. المخاوف الشائعة تشمل الجفاف، وتقرن الجلد الشعري (نتوءات خشنة)، ومناطق فرط التقرن (جلد سميك على الكوعين والركبتين والكعبين). الترطيب المستمر والتقشير اللطيف هما المفتاح.",
+      ar: "جلد الجسم، رغم أنه أكثر مرونة من جلد الوجه، يتطلب أيضاً عناية مناسبة. المخاوف الشائعة تشمل الجفاف، وتقرن الجلد الشعري (نتوءات خشنة)، ومناطق فرط التقرن (جلد سميك على الكوعين والركبتين والكعبين). ��لترطيب المستمر والتقشير اللطيف هما المفتاح.",
     },
     recommendedProducts: ["Aromatica Recipe Body Lotion"],
     sideEffects: {
@@ -912,3 +912,4 @@ const AIDermatologist = () => {
 };
 
 export default AIDermatologist;
+
