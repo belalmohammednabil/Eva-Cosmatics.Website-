@@ -368,12 +368,15 @@ const AIDermatologist = () => {
 هل تريدين مساعدة في اختيار الأنسب لنوع بشرتك؟`;
     }
 
-    // Products inquiry
+    // All products / Products inquiry
     if (
+      input.includes("جميع المنتجات") ||
+      input.includes("كل المنتجات") ||
       input.includes("منتج") ||
       input.includes("product") ||
       input.includes("ايش عندكم") ||
-      input.includes("شو عندكم")
+      input.includes("شو عندكم") ||
+      input.includes("all products")
     ) {
       return `سعيدة بتقديم منتجاتنا لكِ 💜
 
@@ -652,6 +655,16 @@ const AIDermatologist = () => {
                     {suggestion}
                   </button>
                 ))}
+                <button
+                  onClick={() => {
+                    setInput("عرض جميع المنتجات");
+                    setTimeout(() => sendMessage(), 100);
+                  }}
+                  className="text-xs bg-[#7c3aed] text-white hover:bg-[#6d28d9] rounded-full px-3 py-1.5 transition-colors flex items-center gap-1"
+                >
+                  <Sparkles className="w-3 h-3" />
+                  عرض جميع المنتجات
+                </button>
               </div>
             </div>
           )}
