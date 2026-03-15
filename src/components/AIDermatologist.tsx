@@ -3,10 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { useProducts } from "@/hooks/useProducts";
-import { resolveProductImage, translateProductName, translateProductDescription } from "@/lib/productImages";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link } from "react-router-dom";
 import {
   MessageCircle,
@@ -15,669 +12,697 @@ import {
   Stethoscope,
   Loader2,
   ShieldCheck,
-  ExternalLink,
-  AlertCircle,
-  BookOpen,
   User,
   Sparkles,
+  Heart,
+  Clock,
+  AlertTriangle,
+  Globe,
 } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────
-// PROFESSIONAL MEDICAL KNOWLEDGE BASE
-// ─────────────────────────────────────────────────────────────
-
-interface MedicalCondition {
-  keywords: {
-    en: string[];
-    ar: string[];
-  };
-  diagnosis: {
-    en: string;
-    ar: string;
-  };
-  recommendedProducts: string[];
-  sideEffects: {
-    en: string[];
-    ar: string[];
-  };
-  usage: {
-    en: string;
-    ar: string;
-  };
-  medicalAdvice: {
-    en: string;
-    ar: string;
-  };
-}
-
-const medicalKnowledgeBase: Record<string, MedicalCondition> = {
-  acne: {
-    keywords: {
-      en: ["acne", "pimple", "pimples", "breakout", "breakouts", "zit", "zits", "blemish", "blemishes", "oily acne", "hormonal acne", "cystic"],
-      ar: ["حب الشباب", "بثور", "حبوب", "بثرة", "حبة", "حبوب الوجه", "البثور", "حب شباب"],
-    },
-    diagnosis: {
-      en: "Based on your description, you appear to be experiencing acne-related concerns. Acne vulgaris occurs when hair follicles become clogged with sebum and dead skin cells, leading to inflammatory or non-inflammatory lesions. This is a common dermatological condition affecting the pilosebaceous unit.",
-      ar: "بناءً على وصفك، يبدو أنك تعاني من مشكلة متعلقة بحب الشباب. يحدث حب الشباب الشائع عندما تنسد بصيلات الشعر بالزهم وخلايا الجلد الميتة، مما يؤدي إلى آفات التهابية أو غير التهابية. هذه حالة جلدية شائعة تؤثر على الوحدة الشعرية الدهنية.",
-    },
-    recommendedProducts: ["Pore Clearing Clay Mask 2X", "Lychee Soda Bubble Cleanser", "Gentle Exfoliating Toner", "Clarifying Emulsion"],
-    sideEffects: {
-      en: [
-        "Initial purging period (2-4 weeks) where breakouts may temporarily increase",
-        "Mild dryness or peeling - this indicates the product is working",
-        "Increased photosensitivity - mandatory sun protection",
-        "Potential irritation if overused - start with every other day application",
-      ],
-      ar: [
-        "فترة تنقية أولية (2-4 أسابيع) قد تزداد فيها البثور مؤقتاً",
-        "جفاف خفيف أو تقشر - هذا يدل على أن المنتج يعمل",
-        "زيادة الحساسية للضوء - الحماية من الشمس إلزامية",
-        "احتمال حدوث تهيج عند الإفراط في الاستخدام - ابدأ بالتطبيق يوماً بعد يوم",
-      ],
-    },
-    usage: {
-      en: "Evening Protocol: Cleanse with bubble cleanser for 60 seconds using gentle circular motions. Apply clay mask 2-3 times weekly, leaving for 10-15 minutes. Use exfoliating toner with cotton pad on affected areas. Finish with clarifying emulsion. Morning: Gentle cleanse and mandatory SPF application.",
-      ar: "بروتوكول المساء: نظف بالغسول الرغوي لمدة 60 ثانية بحركات دائرية لطيفة. ضع قناع الطين 2-3 مرات أسبوعياً لمدة 10-15 دقيقة. استخدم التونر المقشر بقطن على المناطق المصابة. أنهِ بالمرطب المنقي. الصباح: تنظيف لطيف ووضع واقي شمس إلزامي.",
-    },
-    medicalAdvice: {
-      en: "If your condition does not improve within 8-12 weeks of consistent treatment, or if you develop nodular/cystic acne, scarring, or psychological distress, I strongly recommend scheduling an appointment with a board-certified dermatologist. Prescription-strength retinoids, antibiotics, or hormonal therapies may be indicated.",
-      ar: "إذا لم تتحسن حالتك خلال 8-12 أسبوعاً من العلاج المستمر، أو إذا ظهر لديك حب شباب عقدي/كيسي، أو ندبات، أو ضيق نفسي، أنصحك بشدة بحجز موعد مع طبيب جلدية معتمد. قد تكون هناك حاجة للريتينويدات أو المضادات الحيوية أو العلاجات الهرمونية بوصفة طبية.",
-    },
-  },
-  dryness: {
-    keywords: {
-      en: ["dry", "dryness", "dehydrated", "flaky", "tight", "rough", "cracked", "scaling", "xerosis"],
-      ar: ["جفاف", "جافة", "جاف", "متقشرة", "مشدودة", "خشنة", "متشققة", "بشرة جافة", "الجفاف"],
-    },
-    diagnosis: {
-      en: "Your symptoms suggest xerosis cutis (dry skin), which occurs when the stratum corneum lacks adequate moisture. This can result from impaired barrier function, environmental factors, or transepidermal water loss (TEWL). Proper hydration and barrier repair are essential.",
-      ar: "تشير أعراضك إلى جفاف الجلد، والذي يحدث عندما تفتقر الطبقة القرنية إلى الرطوبة الكافية. يمكن أن ينتج هذا عن ضعف وظيفة الحاجز، أو العوامل البيئية، أو فقدان الماء عبر البشرة. الترطيب المناسب وإصلاح الحاجز ضروريان.",
-    },
-    recommendedProducts: ["Super Aqua Cream", "Anti-Ageing Hyaluronic Acid Face Serum", "Dewy Glow Jelly Cream", "Rice Sheet Mask"],
-    sideEffects: {
-      en: [
-        "Hyaluronic acid requires moisture to function - apply to damp skin",
-        "Initial stickiness may occur - this dissipates upon absorption",
-        "Rare allergic reactions - discontinue if irritation persists",
-        "In very dry climates, HA may draw moisture from skin - layer with occlusive",
-      ],
-      ar: [
-        "حمض الهيالورونيك يحتاج رطوبة ليعمل - ضعه على بشرة رطبة",
-        "قد يحدث لزوجة أولية - تختفي عند الامتصاص",
-        "ردود فعل تحسسية نادرة - توقف إذا استمر التهيج",
-        "في المناخات الجافة جداً، قد يسحب الرطوبة من الجلد - ضع طبقة مانعة فوقه",
-      ],
-    },
-    usage: {
-      en: "Hydration Protocol: On damp skin post-cleansing, apply hyaluronic serum using pressing motions (not rubbing). Wait 30 seconds, then apply aqua cream. Use sheet mask 2-3 times weekly as intensive treatment. Apply jelly cream as final occlusive layer. Avoid hot water during cleansing.",
-      ar: "بروتوكول الترطيب: على بشرة رطبة بعد التنظيف، ضع سيروم الهيالورونيك بحركات ضغط (ليس فرك). انتظر 30 ثانية، ثم ضع كريم الأكوا. استخدم قناع الورقي 2-3 مرات أسبوعياً كعلاج مكثف. ضع الجيلي كريم كطبقة أخيرة. تجنب الماء الساخن عند التنظيف.",
-    },
-    medicalAdvice: {
-      en: "Persistent dryness despite proper skincare may indicate underlying conditions such as atopic dermatitis, ichthyosis, or thyroid dysfunction. If skin cracking, bleeding, or severe itching occurs, please consult a dermatologist for evaluation and prescription emollients if necessary.",
-      ar: "الجفاف المستمر رغم العناية الصحيحة قد يشير إلى حالات كامنة مثل التهاب الجلد التأتبي، أو السماك، أو خلل الغدة الدرقية. إذا حدث تشقق أو نزيف أو حكة شديدة، يرجى استشارة طبيب جلدية للتقييم ووصف المطريات إذا لزم الأمر.",
-    },
-  },
-  oily: {
-    keywords: {
-      en: ["oily", "greasy", "shiny", "excess oil", "sebum", "large pores", "t-zone", "sebaceous"],
-      ar: ["دهنية", "زيتية", "لامعة", "زيوت زائدة", "دهون", "مسام واسعة", "بشرة دهنية", "الدهون"],
-    },
-    diagnosis: {
-      en: "Your description indicates seborrhea or excess sebum production. This occurs when sebaceous glands are hyperactive, often due to hormonal factors, genetics, or paradoxically, over-stripping the skin which triggers compensatory oil production. The goal is to balance, not eliminate, sebum.",
-      ar: "يشير وصفك إلى فرط الإفراز الدهني. يحدث هذا عندما تكون الغدد الدهنية مفرطة النشاط، غالباً بسبب عوامل هرمونية، أو وراثية، أو على العكس، الإفراط في تجريد البشرة مما يحفز إنتاج زيت تعويضي. الهدف هو التوازن، وليس إزالة الدهون.",
-    },
-    recommendedProducts: ["Clarifying Emulsion", "Pore Clearing Clay Mask 2X", "Matte Priming UV Shield Sunscreen SPF 37", "Gentle Exfoliating Toner"],
-    sideEffects: {
-      en: [
-        "Clay masks may cause temporary tightness - always follow with moisturizer",
-        "Over-exfoliation can trigger rebound oiliness - limit to 2-3 times weekly",
-        "Some matte products contain alcohol - may cause dryness in some individuals",
-        "Excessive use of oil-absorbing products can dehydrate skin",
-      ],
-      ar: [
-        "أقنعة الطين قد تسبب شد مؤقت - اتبعها دائماً بمرطب",
-        "الإفراط في التقشير يمكن أن يحفز دهنية ارتدادية - حدده بـ 2-3 مرات أسبوعياً",
-        "بعض منتجات المات تحتوي على كحول - قد تسبب جفاف لبعض الأشخاص",
-        "الاستخدام المفرط للمنتجات الماصة للزيوت يمكن أن يجفف البشرة",
-      ],
-    },
-    usage: {
-      en: "Sebum Control Protocol: Cleanse morning and evening with gentle cleanser (avoid stripping products). Apply clarifying emulsion - it hydrates without adding oil. Use clay mask 2x weekly. Apply matte sunscreen as final morning step. Blotting papers during day as needed.",
-      ar: "بروتوكول التحكم بالدهون: نظف صباحاً ومساءً بغسول لطيف (تجنب المنتجات المجردة). ضع المرطب المنقي - يرطب دون إضافة زيوت. استخدم قناع الطين مرتين أسبوعياً. ضع واقي الشمس المات كخطوة صباحية أخيرة. أوراق التنشيف خلال اليوم حسب الحاجة.",
-    },
-    medicalAdvice: {
-      en: "If excessive oiliness is accompanied by irregular menstruation, hair growth changes, or persistent acne, this may indicate hormonal imbalances such as PCOS. I recommend consulting an endocrinologist or dermatologist for comprehensive evaluation.",
-      ar: "إذا كانت الدهنية المفرطة مصحوبة بعدم انتظام الدورة الشهرية، أو تغيرات في نمو الشعر، أو حب شباب مستمر، فقد يشير هذا إلى اختلالات هرمونية مثل متلازمة تكيس المبايض. أنصح باستشارة طبيب غدد صماء أو جلدية للتقييم الشامل.",
-    },
-  },
-  aging: {
-    keywords: {
-      en: ["aging", "anti-aging", "wrinkle", "wrinkles", "fine lines", "sagging", "mature", "collagen", "elasticity", "crow's feet"],
-      ar: ["شيخوخة", "تجاعيد", "خطوط دقيقة", "ترهل", "ناضجة", "كولاجين", "مرونة", "علامات تقدم السن", "التجاعيد", "مكافحة الشيخوخة"],
-    },
-    diagnosis: {
-      en: "Your concerns relate to chronological and/or photoaging. Skin aging involves decreased collagen synthesis, reduced elastin, slower cell turnover, and accumulated UV damage. A comprehensive approach targeting multiple aging pathways is most effective. Prevention is equally important as treatment.",
-      ar: "تتعلق مخاوفك بالشيخوخة الزمنية و/أو الضوئية. شيخوخة الجلد تشمل انخفاض تخليق الكولاجين، وتقليل الإيلاستين، وبطء تجدد الخلايا، وتراكم أضرار الأشعة فوق البنفسجية. النهج الشامل الذي يستهدف مسارات شيخوخة متعددة هو الأكثر فعالية. الوقاية مهمة بقدر العلاج.",
-    },
-    recommendedProducts: ["Anti-Ageing Hyaluronic Acid Face Serum", "Skin Reinforcement Get Type Cream", "Soft Finish Sun Milk SPF50+/PA+++", "Fermented Soybean Bio Cellulose Mask"],
-    sideEffects: {
-      en: [
-        "Active ingredients may cause initial sensitivity - introduce gradually",
-        "Hyaluronic acid rarely causes reactions but patch test recommended",
-        "Fermented products may have distinctive scent - this is normal",
-        "Sun sensitivity increases with anti-aging actives - SPF is non-negotiable",
-      ],
-      ar: [
-        "المكونات النشطة قد تسبب حساسية أولية - أدخلها تدريجياً",
-        "حمض الهيالورونيك نادراً ما يسبب ردود فعل لكن يوصى باختبار رقعة",
-        "المنتجات المخمرة قد يكون لها رائحة مميزة - هذا طبيعي",
-        "تزداد الحساسية للشمس مع مضادات الشيخوخة - واقي الشمس غير قابل للتفاوض",
-      ],
-    },
-    usage: {
-      en: "Anti-Aging Protocol: Morning - Serum on damp skin, allow absorption, SPF50+ as final step (reapply every 2 hours in sun). Evening - Serum, followed by reinforcement cream focusing on areas of concern. Weekly bio cellulose mask for intensive hydration and firming.",
-      ar: "بروتوكول مكافحة الشيخوخة: الصباح - سيروم على بشرة رطبة، اتركه يمتص، واقي شمس SPF50+ كخطوة أخيرة (أعد التطبيق كل ساعتين في الشمس). المساء - سيروم، يليه كريم التعزيز مع التركيز على مناطق القلق. قناع السليلوز الحيوي أسبوعياً للترطيب المكثف والشد.",
-    },
-    medicalAdvice: {
-      en: "For established wrinkles, volume loss, or significant skin laxity, topical products have limitations. Procedures such as retinoid prescriptions, botulinum toxin, dermal fillers, laser resurfacing, or microneedling may be discussed with a board-certified dermatologist or plastic surgeon.",
-      ar: "للتجاعيد الثابتة، أو فقدان الحجم، أو ترهل الجلد الكبير، المنتجات الموضعية لها حدود. الإجراءات مثل وصفات الريتينويد، أو توكسين البوتولينوم، أو الفيلر، أو التقشير بالليزر، أو الميكرونيدلنغ يمكن مناقشتها مع طبيب جلدية أو جراح تجميل معتمد.",
-    },
-  },
-  sensitive: {
-    keywords: {
-      en: ["sensitive", "irritated", "redness", "reactive", "burning", "stinging", "rosacea", "eczema", "itchy", "allergic"],
-      ar: ["حساسة", "احمرار", "تهيج", "حارقة", "لاذعة", "وردية", "إكزيما", "حكة", "حساسية", "بشرة حساسة", "متهيجة"],
-    },
-    diagnosis: {
-      en: "Your symptoms suggest sensitive or reactive skin, characterized by a compromised epidermal barrier and heightened immune response. This may manifest as stinging, burning, redness, or dryness in response to environmental or product triggers. Barrier repair and gentle formulations are paramount.",
-      ar: "تشير أعراضك إلى بشرة حساسة أو تفاعلية، تتميز بحاجز بشري ضعيف واستجابة مناعية متزايدة. قد يظهر هذا كوخز، أو حرقان، أو احمرار، أو جفاف استجابةً للمحفزات البيئية أو المنتجات. إصلاح الحاجز والتركيبات اللطيفة أمر بالغ الأهمية.",
-    },
-    recommendedProducts: ["Clarifying Emulsion", "Rice Sheet Mask", "Dewy Glow Jelly Cream", "All-Around Safe Block Essence Sun SPF45+"],
-    sideEffects: {
-      en: [
-        "Even gentle products may trigger reactions - always patch test 24-48 hours prior",
-        "Introduce only ONE new product at a time, waiting 2 weeks between additions",
-        "Fragrance-free does not mean allergen-free - check full ingredient list",
-        "Physical sunscreens may leave white cast but are gentler than chemical filters",
-      ],
-      ar: [
-        "حتى المنتجات اللطيفة قد تحفز ردود فعل - اختبر دائماً على منطقة صغيرة 24-48 ساعة قبل",
-        "أدخل منتج واحد جديد فقط في كل مرة، وانتظر أسبوعين بين الإضافات",
-        "خالي من العطور لا يعني خالي من المواد المسببة للحساسية - تحقق من قائمة المكونات كاملة",
-        "واقيات الشمس الفيزيائية قد تترك طبقة بيضاء لكنها ألطف من الفلاتر الكيميائية",
-      ],
-    },
-    usage: {
-      en: "Sensitive Skin Protocol: Minimize routine to essentials only. Gentle cleanse (no rubbing), pat dry. Apply calming emulsion while skin is slightly damp. Rice mask 1-2x weekly for soothing. Mineral sunscreen for protection. Avoid: hot water, scrubs, alcohol-based products, fragrance.",
-      ar: "بروتوكول البشرة الحساسة: قلل الروتين للأساسيات فقط. تنظيف لطيف (بدون فرك)، جفف بالتربيت. ضع المرطب المهدئ والبشرة رطبة قليلاً. قناع الأرز 1-2 مرة أسبوعياً للتهدئة. واقي شمس معدني للحماية. تجنب: الماء الساخن، المقشرات، منتجات الكحول، العطور.",
-    },
-    medicalAdvice: {
-      en: "If you experience persistent redness, pustules, flushing, or visible blood vessels, you may have rosacea requiring medical management. Chronic itching, scaling, or oozing may indicate eczema or contact dermatitis. Please consult a dermatologist for proper diagnosis and prescription treatments.",
-      ar: "إذا كنت تعاني من احمرار مستمر، أو بثور، أو احمرار مفاجئ، أو أوعية دموية مرئية، فقد يكون لديك وردية تتطلب إدارة طبية. الحكة المزمنة، أو التقشر، أو الإفرازات قد تشير إلى إكزيما أو التهاب جلدي تماسي. يرجى استشارة طبيب جلدية للتشخيص الصحيح والعلاجات الموصوفة.",
-    },
-  },
-  sunProtection: {
-    keywords: {
-      en: ["sun", "sunscreen", "spf", "uv", "protection", "tanning", "sunburn", "dark spots", "hyperpigmentation", "melasma"],
-      ar: ["شمس", "واقي شمس", "حماية", "أشعة", "تسمير", "حروق شمس", "بقع داكنة", "تصبغ", "كلف", "الشمس"],
-    },
-    diagnosis: {
-      en: "Sun protection is the cornerstone of dermatological care. UV radiation causes 80% of extrinsic skin aging, increases melanoma risk, and exacerbates hyperpigmentation. Adequate SPF use is the single most effective anti-aging and preventive measure available.",
-      ar: "الحماية من الشمس هي حجر الزاوية في العناية بالبشرة. الأشعة فوق البنفسجية تسبب 80% من شيخوخة الجلد الخارجية، وتزيد من خطر الميلانوما، وتفاقم التصبغ. استخدام واقي الشمس الكافي هو أكثر إجراء فعال لمكافحة الشيخوخة والوقاية المتاحة.",
-    },
-    recommendedProducts: ["Soft Finish Sun Milk SPF50+/PA+++", "Matte Priming UV Shield Sunscreen SPF 37", "All-Around Safe Block Essence Sun SPF45+"],
-    sideEffects: {
-      en: [
-        "Chemical sunscreens may sting sensitive eyes - choose mineral formulas for eye area",
-        "White cast from mineral sunscreens varies by formulation",
-        "Some individuals may experience comedogenic effects - choose non-comedogenic formulas",
-        "Reapplication is essential - single morning application is insufficient for sun exposure",
-      ],
-      ar: [
-        "واقيات الشمس الكيميائية قد تلسع العيون الحساسة - اختر تركيبات معدنية لمنطقة العين",
-        "الطبقة البيضاء من واقيات الشمس المعدنية تختلف حسب التركيبة",
-        "بعض الأشخاص قد يعانون من آثار مسببة للكوميدونات - اختر تركيبات غير كوميدوجينية",
-        "إعادة التطبيق ضرورية - التطبيق الصباحي الواحد غير كافٍ للتعرض للشمس",
-      ],
-    },
-    usage: {
-      en: "SPF Protocol: Apply 2 finger-lengths (1/4 teaspoon) for face and neck as final skincare step. Apply 15-30 minutes before sun exposure. Reapply every 2 hours during exposure, or immediately after swimming/sweating. Don't forget: ears, neck, décolletage, backs of hands.",
-      ar: "بروتوكول واقي الشمس: ضع طول إصبعين (1/4 ملعقة صغيرة) للوجه والرقبة كخطوة أخيرة للعناية. ضعه قبل 15-30 دقيقة من التعرض للشمس. أعد التطبيق كل ساعتين أثناء التعرض، أو فوراً بعد السباحة/التعرق. لا تنسَ: الأذنين، الرقبة، منطقة الصدر، ظهر اليدين.",
-    },
-    medicalAdvice: {
-      en: "No sunscreen provides 100% protection. Combine with protective clothing, wide-brimmed hats, and seeking shade during peak UV hours (10am-4pm). Annual skin cancer screenings are recommended, especially for those with fair skin, history of sunburns, or family history of melanoma.",
-      ar: "لا يوفر أي واقي شمس حماية 100%. اجمع مع الملابس الواقية، والقبعات عريضة الحواف، والبحث عن الظل خلال ساعات الذروة للأشعة فوق البنفسجية (10 صباحاً - 4 مساءً). يوصى بفحوصات سرطان الجلد السنوية، خاصة لذوي البشرة الفاتحة، أو تاريخ حروق الشمس، أو التاريخ العائلي للميلانوما.",
-    },
-  },
-  dullness: {
-    keywords: {
-      en: ["dull", "dullness", "tired", "uneven", "dark spots", "pigmentation", "brightening", "glow", "radiance", "lackluster", "sallow"],
-      ar: ["باهتة", "تصبغ", "بقع داكنة", "غير متساوية", "متعبة", "إشراق", "توهج", "بهتان", "لون غير موحد", "شاحبة"],
-    },
-    diagnosis: {
-      en: "Dull, lackluster skin typically results from accumulated dead skin cells, dehydration, oxidative stress, or post-inflammatory hyperpigmentation. Restoring radiance requires exfoliation to accelerate cell turnover, antioxidants to combat free radical damage, and proper hydration.",
-      ar: "البشرة الباهتة عادة تنتج عن تراكم خلايا الجلد الميتة، أو الجفاف، أو الإجهاد التأكسدي، أو التصبغ ما بعد الالتهابي. استعادة الإشراق تتطلب التقشير لتسريع تجدد الخلايا، ومضادات الأكسدة لمكافحة أضرار الجذور الحرة، والترطيب المناسب.",
-    },
-    recommendedProducts: ["Dewy Glow Jelly Cream", "Gentle Exfoliating Toner", "Fermented Soybean Bio Cellulose Mask", "Anti-Ageing Hyaluronic Acid Face Serum"],
-    sideEffects: {
-      en: [
-        "Exfoliating acids may cause temporary tingling - this should subside within minutes",
-        "Over-exfoliation causes more harm than benefit - do not exceed recommended frequency",
-        "Brightening ingredients increase photosensitivity significantly",
-        "Results are gradual - expect 4-8 weeks for visible improvement",
-      ],
-      ar: [
-        "أحماض التقشير قد تسبب وخز مؤقت - يجب أن يختفي خلال دقائق",
-        "الإفراط في التقشير يسبب ضرراً أكثر من الفائدة - لا تتجاوز التردد الموصى به",
-        "مكونات التفتيح تزيد الحساسية للضوء بشكل كبير",
-        "النتائج تدريجية - توقع 4-8 أسابيع للتحسن المرئي",
-      ],
-    },
-    usage: {
-      en: "Brightening Protocol: Evening - Apply exfoliating toner 2-3x weekly (not daily) with cotton pad using gentle sweeping motions. Follow with serum and glow cream. Weekly fermented mask for intensive treatment. Morning - Gentle cleanse, hydrating serum, MANDATORY SPF.",
-      ar: "بروتوكول التفتيح: المساء - ضع تونر التقشير 2-3 مرات أسبوعياً (ليس يومياً) بقطن بحركات مسح لطيفة. يليه السيروم والكريم المتوهج. قناع مخمر أسبوعياً للعلاج المكثف. الصباح - تنظيف لطيف، سيروم مرطب، واقي شمس إلزامي.",
-    },
-    medicalAdvice: {
-      en: "Persistent pigmentation, especially if asymmetric or rapidly changing, should be evaluated by a dermatologist to rule out melanoma. Melasma (hormonally-driven pigmentation) may require prescription treatments such as hydroquinone, tretinoin, or procedures like chemical peels.",
-      ar: "التصبغ المستمر، خاصة إذا كان غير متماثل أو يتغير بسرعة، يجب تقييمه من قبل طبيب جلدية لاستبعاد الميلانوما. الكلف (التصبغ الهرموني) قد يتطلب علاجات بوصفة طبية مثل الهيدروكينون، أو التريتينوين، أو إجراءات مثل التقشير الكيميائي.",
-    },
-  },
-  hairCare: {
-    keywords: {
-      en: ["hair", "scalp", "dandruff", "dry hair", "damaged hair", "hair loss", "thinning", "frizzy", "oily scalp"],
-      ar: ["شعر", "فروة الرأس", "قشرة", "شعر جاف", "شعر تالف", "تساقط الشعر", "ترقق", "هايش", "فروة دهنية"],
-    },
-    diagnosis: {
-      en: "Hair and scalp health are interconnected. Issues may stem from seborrheic dermatitis (dandruff), over-processing, environmental damage, nutritional deficiencies, or underlying conditions. A healthy scalp is essential for healthy hair growth.",
-      ar: "صحة الشعر وفروة الرأس مترابطتان. قد تنبع المشاكل من التهاب الجلد الدهني (القشرة)، أو الإفراط في المعالجة، أو الأضرار البيئية، أو نقص التغذية، أو حالات كامنة. فروة الرأس الصحية ضرورية لنمو شعر صحي.",
-    },
-    recommendedProducts: ["Aromatica Recipe Shampoo", "Advanced Care Clinic Conditioner"],
-    sideEffects: {
-      en: [
-        "New hair products may cause an adjustment period of 1-2 weeks",
-        "Clarifying shampoos should not be used daily - they may strip natural oils",
-        "Conditioner should be applied mid-length to ends, not on scalp",
-        "Some ingredients may cause buildup over time - clarify monthly",
-      ],
-      ar: [
-        "منتجات الشعر الجديدة قد تسبب فترة تكيف من 1-2 أسبوع",
-        "الشامبو المنقي لا يجب استخدامه يومياً - قد يجرد الزيوت الطبيعية",
-        "البلسم يجب وضعه من منتصف الطول للأطراف، وليس على الفروة",
-        "بعض المكونات قد تسبب تراكم مع الوقت - نظف شهرياً",
-      ],
-    },
-    usage: {
-      en: "Hair Care Protocol: Shampoo 2-3x weekly (daily if very oily scalp), focusing on scalp massage for 60 seconds to stimulate circulation. Condition ends only, leave 2-3 minutes. Rinse with lukewarm water - hot water strips oils and can damage cuticles.",
-      ar: "بروتوكول العناية بالشعر: الشامبو 2-3 مرات أسبوعياً (يومياً إذا كانت الفروة دهنية جداً)، مع التركيز على تدليك الفروة لمدة 60 ثانية لتحفيز الدورة الدموية. البلسم للأطراف فقط، اتركه 2-3 دقائق. اشطف بماء فاتر - الماء الساخن يجرد الزيوت ويمكن أن يتلف القشرة.",
-    },
-    medicalAdvice: {
-      en: "Sudden or patchy hair loss, scalp pain, or persistent dandruff unresponsive to OTC treatments should be evaluated by a dermatologist or trichologist. Conditions like alopecia areata, telogen effluvium, or androgenetic alopecia require medical diagnosis and treatment.",
-      ar: "تساقط الشعر المفاجئ أو المتقطع، أو ألم فروة الرأس، أو القشرة المستمرة التي لا تستجيب للعلاجات المتاحة يجب تقييمها من قبل طبيب جلدية أو أخصائي شعر. حالات مثل الثعلبة البقعية، أو تساقط الشعر الكربي، أو الصلع الوراثي تتطلب تشخيصاً وعلاجاً طبياً.",
-    },
-  },
-  bodyCare: {
-    keywords: {
-      en: ["body", "body lotion", "dry body", "rough skin", "body care", "elbows", "knees", "heels", "keratosis pilaris", "chicken skin"],
-      ar: ["جسم", "لوشن", "جسم جاف", "جلد خشن", "العناية بالجسم", "الكوعين", "الركبتين", "الكعبين", "جلد الدجاجة"],
-    },
-    diagnosis: {
-      en: "Body skin, while more resilient than facial skin, also requires proper care. Common concerns include xerosis (dry skin), keratosis pilaris (rough bumps), and areas of hyperkeratosis (thickened skin on elbows, knees, heels). Consistent moisturization and gentle exfoliation are key.",
-      ar: "جلد الجسم، رغم أنه أكثر مرونة من جلد الوجه، يتطلب أيضاً عناية مناسبة. المخاوف الشائعة تشمل الجفاف، وتقرن الجلد الشعري (نتوءات خشنة)، ومناطق فرط التقرن (جلد سميك على الكوعين والركبتين والكعبين). الترطيب المستمر والتقشير اللطيف هما المفتاح.",
-    },
-    recommendedProducts: ["Aromatica Recipe Body Lotion"],
-    sideEffects: {
-      en: [
-        "Apply to slightly damp skin post-shower for optimal absorption",
-        "Avoid application on broken or irritated skin",
-        "Some fragranced products may not suit sensitive individuals",
-        "Consistent daily use required for best results",
-      ],
-      ar: [
-        "ضعه على بشرة رطبة قليلاً بعد الاستحمام لامتصاص أمثل",
-        "تجنب التطبيق على جلد متشقق أو متهيج",
-        "بعض المنتجات المعطرة قد لا تناسب الأشخاص الحساسين",
-        "الاستخدام اليومي المستمر مطلوب لأفضل النتائج",
-      ],
-    },
-    usage: {
-      en: "Body Care Protocol: After showering, pat skin until slightly damp (not fully dry). Apply lotion using upward strokes towards the heart. Focus extra product on dry areas: elbows, knees, heels. For rough areas, gentle physical exfoliation 1-2x weekly can help.",
-      ar: "بروتوكول العناية بالجسم: بعد الاستحمام، جفف البشرة حتى تصبح رطبة قليلاً (ليس جافة تماماً). ضع اللوشن بحركات صاعدة نحو القلب. ركز على المنتج الإضافي على المناطق الجافة: الكوعين، الركبتين، الكعبين. للمناطق الخشنة، التقشير الفيزيائي اللطيف 1-2 مرة أسبوعياً يمكن أن يساعد.",
-    },
-    medicalAdvice: {
-      en: "Extremely dry, scaly, or itchy body skin may indicate conditions like eczema, psoriasis, or ichthyosis requiring prescription treatments. Red, raised, or persistent bumps should be evaluated to rule out other dermatological conditions.",
-      ar: "الجلد الجاف للغاية، أو المتقشر، أو الحاك قد يشير إلى حالات مثل الإكزيما، أو الصدفية، أو السماك التي تتطلب علاجات بوصفة طبية. النتوءات الحمراء، أو البارزة، أو المستمرة يجب تقييمها لاستبعاد حالات جلدية أخرى.",
-    },
-  },
-  pores: {
-    keywords: {
-      en: ["pores", "large pores", "minimize pores", "visible pores", "open pores", "clogged pores", "blackheads", "whiteheads"],
-      ar: ["مسام", "مسام واسعة", "تقليل المسام", "مسام مرئية", "مسام مفتوحة", "مسام مسدودة", "رؤوس سوداء", "رؤوس بيضاء"],
-    },
-    diagnosis: {
-      en: "Pore size is primarily determined by genetics and cannot be permanently changed. However, pores can appear larger when dilated by sebum, debris, or loss of surrounding skin elasticity. Keeping pores clean and maintaining skin firmness can minimize their appearance.",
-      ar: "حجم المسام يحدده الجينات بشكل أساسي ولا يمكن تغييره بشكل دائم. ومع ذلك، يمكن أن تظهر المسام أكبر عند توسعها بالزهم، أو الشوائب، أو فقدان مرونة الجلد المحيط. الحفاظ على نظافة المسام والحفاظ على صلابة الجلد يمكن أن يقلل من مظهرها.",
-    },
-    recommendedProducts: ["Pore Clearing Clay Mask 2X", "Gentle Exfoliating Toner", "Clarifying Emulsion", "Lychee Soda Bubble Cleanser"],
-    sideEffects: {
-      en: [
-        "Clay masks may cause temporary skin tightness - follow with moisturizer",
-        "Over-cleansing or over-exfoliating will worsen the condition",
-        "Avoid pore strips - they can damage skin and worsen pore appearance long-term",
-        "Physical extraction should only be performed by professionals",
-      ],
-      ar: [
-        "أقنعة الطين قد تسبب شد مؤقت للجلد - اتبعها بمرطب",
-        "الإفراط في التنظيف أو التقشير سيزيد الحالة سوءاً",
-        "تجنب شرائط المسام - يمكن أن تتلف الجلد وتزيد مظهر المسام سوءاً على المدى الطويل",
-        "الاستخراج الفيزيائي يجب أن يقوم به محترفون فقط",
-      ],
-    },
-    usage: {
-      en: "Pore Minimizing Protocol: Double cleanse in evening (oil-based then water-based). Use clay mask 1-2x weekly maximum. Apply exfoliating toner to T-zone. Never skip moisturizer - dehydrated skin makes pores more visible. Consistent SPF prevents collagen loss around pores.",
-      ar: "بروتوكول تقليل المسام: تنظيف مزدوج في المساء (زيتي ثم مائي). استخدم قناع الطين 1-2 مرة أسبوعياً كحد أقصى. ضع تونر التقشير على منطقة T. لا تتخطى المرطب أبداً - الجلد الجاف يجعل المسام أكثر وضوحاً. واقي الشمس المستمر يمنع فقدان الكولاجين حول المسام.",
-    },
-    medicalAdvice: {
-      en: "For significantly enlarged pores or persistent blackheads unresponsive to skincare, dermatological procedures such as chemical peels, microneedling, laser treatments, or prescription retinoids may provide more dramatic results. Consult a dermatologist for options.",
-      ar: "للمسام المتضخمة بشكل كبير أو الرؤوس السوداء المستمرة التي لا تستجيب للعناية بالبشرة، الإجراءات الجلدية مثل التقشير الكيميائي، أو الميكرونيدلنغ، أو علاجات الليزر، أو الريتينويدات الموصوفة قد توفر نتائج أكثر دراماتيكية. استشر طبيب جلدية للخيارات.",
-    },
-  },
-};
-
-// ─────────────────────────────────────────────────────────────
-// MESSAGE TYPES
+// TYPES
 // ─────────────────────────────────────────────────────────────
 
 interface Message {
   id: string;
-  type: "user" | "bot" | "diagnosis" | "loading";
+  role: "user" | "assistant";
   content: string;
-  products?: ProductRecommendation[];
-  sideEffects?: string[];
-  usage?: string;
-  medicalAdvice?: string;
+  timestamp: Date;
 }
 
-interface ProductRecommendation {
-  id: string;
-  name: string;
-  price: number;
-  image: string;
-  description: string | null;
-  skinType: string | null;
-}
+type Language = "ar" | "en";
 
 // ─────────────────────────────────────────────────────────────
 // TRANSLATIONS
 // ─────────────────────────────────────────────────────────────
 
 const translations = {
-  title: {
-    en: "Dr. Eva - Dermatology Consultation",
-    ar: "د. إيڤا - استشارة طبية جلدية",
+  ar: {
+    doctorName: "د. إيڤا",
+    doctorTitle: "طبيبة جلدية استشارية",
+    typing: "د. إيڤا تكتب...",
+    placeholder: "اكتبي سؤالك هنا...",
+    disclaimer: "استشارة أولية - لا تغني عن زيارة الطبيب",
+    showAllProducts: "عرض جميع المنتجات",
+    suggestions: [
+      "عندي حب شباب",
+      "بشرتي جافة",
+      "أريد واقي شمس",
+      "روتين للبشرة الدهنية",
+    ],
+    welcome: `مرحباً بكِ في عيادة إيڤا للعناية بالبشرة
+
+أنا **د. إيڤا**، طبيبة جلدية استشارية متخصصة. سعيدة بتواصلك معي اليوم.
+
+كيف يمكنني مساعدتك؟ يمكنك إخباري عن:
+- مشكلة جلدية تواجهينها
+- نوع بشرتك واحتياجاتها
+- استفسار عن منتج معين
+- طلب روتين عناية مخصص
+
+أنا هنا للاستماع إليكِ وتقديم النصيحة الطبية المناسبة.`,
   },
-  subtitle: {
-    en: "Professional Skincare Guidance",
-    ar: "إرشادات طبية متخصصة للعناية بالبشرة",
-  },
-  greeting: {
-    en: "Good day. I am Dr. Eva, your virtual dermatology consultant. I am here to provide professional guidance on skincare concerns and recommend appropriate products based on your specific condition. Please describe your skin concern, symptoms, or the area affected, and I will provide a thorough assessment with evidence-based recommendations.",
-    ar: "مرحباً بك. أنا د. إيڤا، استشارية الأمراض الجلدية الافتراضية الخاصة بك. أنا هنا لتقديم إرشادات مهنية حول مخاوف العناية بالبشرة والتوصية بالمنتجات المناسبة بناءً على حالتك المحددة. يرجى وصف مشكلتك الجلدية، أو الأعراض، أو المنطقة المصابة، وسأقدم تقييماً شاملاً مع توصيات قائمة على الأدلة.",
-  },
-  placeholder: {
-    en: "Describe your skin condition or concern...",
-    ar: "صف حالتك الجلدية أو مشكلتك...",
-  },
-  prescribedTreatment: {
-    en: "Prescribed Treatment",
-    ar: "العلاج الموصوف",
-  },
-  sideEffectsTitle: {
-    en: "Important Precautions & Side Effects",
-    ar: "احتياطات مهمة وآثار جانبية",
-  },
-  usageInstructions: {
-    en: "Usage Instructions",
-    ar: "تعليمات الاستخدام",
-  },
-  medicalAdviceTitle: {
-    en: "Medical Recommendation",
-    ar: "التوصية الطبية",
-  },
-  viewProduct: {
-    en: "View Details",
-    ar: "عرض التفاصيل",
-  },
-  analyzing: {
-    en: "Analyzing your condition...",
-    ar: "جاري تحليل حالتك...",
-  },
-  disclaimer: {
-    en: "This consultation is for informational purposes. For serious conditions, consult a licensed dermatologist.",
-    ar: "هذه الاستشارة لأغراض إرشادية. للحالات الجدية، راجع طبيب جلدية مرخص.",
-  },
-  noMatch: {
-    en: "I appreciate you reaching out. To provide you with an accurate assessment and appropriate treatment recommendations, I need more specific information about your concern. Could you please describe:\n\n• The specific skin issue (e.g., acne, dryness, sensitivity, aging concerns)\n• The affected area\n• How long you have been experiencing this\n• Any products you are currently using\n\nThis information will help me provide you with a thorough and personalized consultation.",
-    ar: "أقدر تواصلك معي. لتقديم تقييم دقيق وتوصيات علاجية مناسبة، أحتاج معلومات أكثر تحديداً عن مشكلتك. هل يمكنك وصف:\n\n• المشكلة الجلدية المحددة (مثال: حب الشباب، الجفاف، الحساسية، علامات الشيخوخة)\n• المنطقة المصابة\n• منذ متى تعاني من هذه المشكلة\n• أي منتجات تستخدمها حالياً\n\nهذه المعلومات ستساعدني في تقديم استشارة شاملة ومخصصة لك.",
-  },
-  allProducts: {
-    en: "Complete Product Catalog",
-    ar: "كتالوج المنتجات الكامل",
-  },
-  showAllProducts: {
-    en: "View All Products",
-    ar: "عرض جميع المنتجات",
+  en: {
+    doctorName: "Dr. Eva",
+    doctorTitle: "Consultant Dermatologist",
+    typing: "Dr. Eva is typing...",
+    placeholder: "Type your question here...",
+    disclaimer: "Initial consultation - does not replace a doctor's visit",
+    showAllProducts: "Show All Products",
+    suggestions: [
+      "I have acne",
+      "My skin is dry",
+      "I need sunscreen",
+      "Routine for oily skin",
+    ],
+    welcome: `Welcome to Eva Skincare Clinic
+
+I'm **Dr. Eva**, a specialist consultant dermatologist. I'm happy to connect with you today.
+
+How can I help you? You can tell me about:
+- Any skin concern you're facing
+- Your skin type and needs
+- Questions about a specific product
+- Request a personalized skincare routine
+
+I'm here to listen and provide appropriate medical advice.`,
   },
 };
 
 // ─────────────────────────────────────────────────────────────
-// MAIN COMPONENT
+// RESPONSES DATABASE
+// ─────────────────────────────────────────────────────────────
+
+const responses = {
+  ar: {
+    acne: `شكراً لمشاركتي مخاوفك
+
+**التشخيص المبدئي:**
+بناءً على وصفك، يبدو أنكِ تعانين من **حب الشباب** (Acne Vulgaris). هذه حالة جلدية شائعة تحدث عندما تنسد بصيلات الشعر بالزهم وخلايا الجلد الميتة، مما يؤدي إلى ظهور البثور.
+
+**المنتجات الموصوفة:**
+1. [قناع الطين لتنظيف المسام](/product/pore-clearing-clay-mask) - للتنظيف العميق وامتصاص الزيوت
+2. [غسول الليتشي الفوار](/product/lychee-soda-bubble-cleanser) - تنظيف يومي لطيف
+3. [تونر التقشير اللطيف](/product/gentle-exfoliating-toner) - لإزالة خلايا الجلد الميتة
+4. [المرطب المنقي](/product/clarifying-emulsion) - ترطيب دون زيوت إضافية
+
+**تعليمات الاستخدام:**
+- **صباحاً:** غسول → تونر → مرطب → واقي شمس
+- **مساءً:** غسول → قناع الطين (2-3 مرات أسبوعياً) → تونر → مرطب
+
+**تحذيرات مهمة:**
+- قد تظهر بثور إضافية في أول 2-4 أسابيع (فترة التنقية) - هذا طبيعي
+- واقي الشمس إلزامي لأن هذه المنتجات تزيد حساسية البشرة للشمس
+- لا تعصري البثور أبداً لتجنب الندبات
+
+**متى تراجعين طبيب جلدية؟**
+إذا لم تتحسن الحالة خلال 8-12 أسبوعاً، أو ظهرت ندبات، أو كان حب الشباب كيسياً ومؤلماً.
+
+هل لديكِ أسئلة أخرى عن روتين العناية؟`,
+
+    dry: `أفهم مشكلتك تماماً
+
+**التشخيص المبدئي:**
+تشير أعراضك إلى **جفاف البشرة** (Xerosis). يحدث عندما تفقد الطبقة الخارجية للبشرة رطوبتها، وقد يكون السبب عوامل بيئية أو ضعف في الحاجز الجلدي.
+
+**المنتجات الموصوفة:**
+1. [سيروم حمض الهيالورونيك](/product/anti-ageing-hyaluronic-acid-face-serum) - ترطيب عميق
+2. [كريم الترطيب الفائق](/product/super-aqua-cream) - حبس الرطوبة
+3. [جيلي كريم التوهج](/product/dewy-glow-jelly-cream) - طبقة حماية
+4. [قناع الأرز الورقي](/product/rice-sheet-mask) - ترطيب مكثف أسبوعي
+
+**تعليمات الاستخدام:**
+- ضعي السيروم على بشرة **رطبة** (هذا مهم جداً!)
+- طبقي الكريمات بحركات ضغط وليس فرك
+- استخدمي القناع 1-2 مرة أسبوعياً
+
+**نصائح إضافية:**
+- تجنبي الماء الساخن عند غسل الوجه
+- استخدمي مرطب الهواء في الغرفة إن أمكن
+- اشربي كمية كافية من الماء
+
+هل تريدين أن أشرح لكِ المزيد عن أي منتج؟`,
+
+    oily: `مشكلة شائعة وقابلة للحل
+
+**التشخيص المبدئي:**
+تعانين من **فرط إفراز الدهون** (Seborrhea). الغدد الدهنية لديكِ نشطة أكثر من اللازم، وقد يكون السبب هرموني أو حتى الإفراط في تجفيف البشرة!
+
+**المنتجات الموصوفة:**
+1. [المرطب المنقي](/product/clarifying-emulsion) - يرطب دون زيوت
+2. [قناع الطين](/product/pore-clearing-clay-mask) - يمتص الدهون الزائدة
+3. [واقي الشمس المات](/product/matte-priming-uv-shield-sunscreen-spf-37) - حماية بلمسة جافة
+4. [تونر التقشير](/product/gentle-exfoliating-toner) - ينظف المسام
+
+**خطأ شائع يجب تجنبه:**
+الإفراط في التنظيف والتجفيف يجعل البشرة تنتج المزيد من الدهون! الحل هو التوازن.
+
+**روتين مقترح:**
+- **صباحاً:** غسول لطيف → مرطب منقي → واقي شمس مات
+- **مساءً:** غسول → تونر → قناع طين (مرتين أسبوعياً) → مرطب
+
+هل لديكِ أسئلة عن هذا الروتين؟`,
+
+    aging: `موضوع مهم للعناية الوقائية
+
+**التشخيص:**
+علامات التقدم بالعمر تشمل انخفاض إنتاج الكولاجين والإيلاستين، وتراكم أضرار الشمس. الوقاية والعلاج المبكر يحدثان فرقاً كبيراً.
+
+**المنتجات الموصوفة:**
+1. [سيروم حمض الهيالورونيك](/product/anti-ageing-hyaluronic-acid-face-serum) - ملء الخطوط الدقيقة
+2. [كريم تعزيز البشرة](/product/skin-reinforcement-get-type-cream) - شد وتحسين المرونة
+3. [واقي شمس SPF50+](/product/soft-finish-sun-milk-spf50) - **الأهم على الإطلاق!**
+4. [قناع الصويا المخمر](/product/fermented-soybean-bio-cellulose-mask) - تغذية مكثفة
+
+**حقيقة طبية مهمة:**
+80% من شيخوخة البشرة سببها الشمس. واقي الشمس هو أفضل منتج مضاد للشيخوخة!
+
+**روتين مكافحة الشيخوخة:**
+- **صباحاً:** سيروم على بشرة رطبة → كريم → **واقي شمس** (أعيدي التطبيق كل ساعتين)
+- **مساءً:** سيروم → كريم التعزيز → قناع أسبوعي
+
+هل تريدين نصائح إضافية لمنطقة معينة مثل العين أو الرقبة؟`,
+
+    sensitive: `البشرة الحساسة تحتاج عناية خاصة
+
+**التشخيص:**
+بشرتك لديها حاجز جلدي ضعيف وتتفاعل بسهولة مع المحفزات. الهدف هو تقوية الحاجز وتجنب المهيجات.
+
+**المنتجات الموصوفة:**
+1. [المرطب المنقي](/product/clarifying-emulsion) - لطيف ومهدئ
+2. [قناع الأرز](/product/rice-sheet-mask) - تهدئة وترطيب
+3. [جيلي كريم](/product/dewy-glow-jelly-cream) - حماية خفيفة
+4. [واقي الشمس الآمن](/product/all-around-safe-block-essence-sun-spf45) - للبشرة الحساسة
+
+**قواعد ذهبية للبشرة الحساسة:**
+- أدخلي منتج واحد جديد فقط كل أسبوعين
+- اختبري أي منتج جديد على منطقة صغيرة أولاً
+- تجنبي: العطور، الكحول، المقشرات القوية، الماء الساخن
+
+**متى تراجعين طبيب؟**
+إذا كان الاحمرار مستمراً مع ظهور أوعية دموية أو بثور، فقد تكون "الوردية" وتحتاج علاج طبي.
+
+هل تريدين أن أساعدك في بناء روتين بسيط؟`,
+
+    sun: `الحماية من الشمس أساس العناية بالبشرة!
+
+**لماذا واقي الشمس مهم؟**
+الأشعة فوق البنفسجية مسؤولة عن:
+- 80% من شيخوخة البشرة
+- البقع الداكنة والكلف
+- زيادة خطر سرطان الجلد
+
+**واقيات الشمس المتوفرة:**
+1. [حليب الشمس SPF50+](/product/soft-finish-sun-milk-spf50) - حماية قصوى، لمسة ناعمة
+2. [واقي الشمس المات SPF37](/product/matte-priming-uv-shield-sunscreen-spf-37) - للبشرة الدهنية
+3. [واقي الشمس الآمن SPF45](/product/all-around-safe-block-essence-sun-spf45) - للبشرة الحساسة
+
+**طريقة الاستخدام الصحيحة:**
+- الكمية: طول إصبعين للوجه والرقبة
+- ضعيه قبل 15-30 دقيقة من الخروج
+- **أعيدي التطبيق كل ساعتين** - هذا ضروري!
+- لا تنسي: الأذنين، الرقبة، ظهر اليدين
+
+هل تريدين مساعدة في اختيار الأنسب لنوع بشرتك؟`,
+
+    products: `سعيدة بتقديم منتجاتنا لكِ
+
+**منتجات إيڤا كوزماتكس:**
+
+**للتنظيف:**
+- [غسول الليتشي الفوار](/product/lychee-soda-bubble-cleanser)
+- [قناع الطين](/product/pore-clearing-clay-mask)
+- [تونر التقشير](/product/gentle-exfoliating-toner)
+
+**للترطيب:**
+- [سيروم الهيالورونيك](/product/anti-ageing-hyaluronic-acid-face-serum)
+- [كريم الترطيب الفائق](/product/super-aqua-cream)
+- [جيلي كريم التوهج](/product/dewy-glow-jelly-cream)
+- [المرطب المنقي](/product/clarifying-emulsion)
+
+**للحماية من الشمس:**
+- [حليب الشمس SPF50+](/product/soft-finish-sun-milk-spf50)
+- [واقي الشمس المات SPF37](/product/matte-priming-uv-shield-sunscreen-spf-37)
+- [واقي الشمس الآمن SPF45](/product/all-around-safe-block-essence-sun-spf45)
+
+**للأقنعة والعلاج المكثف:**
+- [قناع الأرز](/product/rice-sheet-mask)
+- [قناع الصويا المخمر](/product/fermented-soybean-bio-cellulose-mask)
+- [كريم تعزيز البشرة](/product/skin-reinforcement-get-type-cream)
+
+**للشعر والجسم:**
+- [أمبول إصلاح الشعر](/product/repair-ex-damage-care-hair-fill-up-ampoule)
+- [جل تقشير الجسم](/product/spa-body-peeling-gel)
+
+أخبريني عن نوع بشرتك ومخاوفك، وسأساعدك في اختيار الأنسب لكِ!`,
+
+    greeting: `أهلاً وسهلاً بكِ!
+
+سعيدة بتواصلك مع عيادة إيڤا. أنا د. إيڤا، طبيبة جلدية متخصصة.
+
+كيف يمكنني مساعدتك اليوم؟ يمكنكِ إخباري عن:
+- أي مشكلة جلدية تواجهينها
+- نوع بشرتك واحتياجاتها
+- استفسار عن منتج معين
+- طلب روتين عناية مخصص
+
+أنا هنا للاستماع إليكِ`,
+
+    default: `شكراً لسؤالك
+
+لأتمكن من مساعدتك بشكل أفضل، هل يمكنكِ إخباري المزيد عن:
+
+1. **نوع بشرتك:** جافة، دهنية، مختلطة، حساسة؟
+2. **المشكلة الرئيسية:** حب شباب، جفاف، تجاعيد، بقع داكنة؟
+3. **عمرك:** يساعدني في تقديم نصائح مناسبة
+4. **روتينك الحالي:** هل تستخدمين منتجات معينة؟
+
+كلما عرفت أكثر، كلما استطعت وصف العلاج المناسب لكِ.
+
+أو يمكنكِ ببساطة وصف ما تلاحظينه على بشرتك`,
+  },
+  en: {
+    acne: `Thank you for sharing your concerns
+
+**Initial Diagnosis:**
+Based on your description, it appears you're experiencing **Acne Vulgaris**. This is a common skin condition that occurs when hair follicles become clogged with sebum and dead skin cells, leading to pimples.
+
+**Prescribed Products:**
+1. [Pore Clearing Clay Mask](/product/pore-clearing-clay-mask) - Deep cleansing and oil absorption
+2. [Lychee Soda Bubble Cleanser](/product/lychee-soda-bubble-cleanser) - Gentle daily cleansing
+3. [Gentle Exfoliating Toner](/product/gentle-exfoliating-toner) - Remove dead skin cells
+4. [Clarifying Emulsion](/product/clarifying-emulsion) - Oil-free hydration
+
+**Usage Instructions:**
+- **Morning:** Cleanser → Toner → Moisturizer → Sunscreen
+- **Evening:** Cleanser → Clay Mask (2-3 times weekly) → Toner → Moisturizer
+
+**Important Warnings:**
+- You may experience purging (more breakouts) in the first 2-4 weeks - this is normal
+- Sunscreen is mandatory as these products increase sun sensitivity
+- Never squeeze pimples to avoid scarring
+
+**When to see a dermatologist?**
+If condition doesn't improve within 8-12 weeks, scarring appears, or acne is cystic and painful.
+
+Do you have any other questions about the skincare routine?`,
+
+    dry: `I completely understand your concern
+
+**Initial Diagnosis:**
+Your symptoms indicate **Xerosis** (dry skin). This occurs when the outer layer of skin loses moisture, which can be caused by environmental factors or a weakened skin barrier.
+
+**Prescribed Products:**
+1. [Hyaluronic Acid Face Serum](/product/anti-ageing-hyaluronic-acid-face-serum) - Deep hydration
+2. [Super Aqua Cream](/product/super-aqua-cream) - Lock in moisture
+3. [Dewy Glow Jelly Cream](/product/dewy-glow-jelly-cream) - Protective layer
+4. [Rice Sheet Mask](/product/rice-sheet-mask) - Weekly intensive hydration
+
+**Usage Instructions:**
+- Apply serum on **damp skin** (this is very important!)
+- Pat creams gently, don't rub
+- Use the mask 1-2 times weekly
+
+**Additional Tips:**
+- Avoid hot water when washing your face
+- Use a humidifier in your room if possible
+- Drink adequate water
+
+Would you like me to explain more about any product?`,
+
+    oily: `A common but solvable problem
+
+**Initial Diagnosis:**
+You're experiencing **Seborrhea** (excess oil production). Your sebaceous glands are overactive, which could be hormonal or even caused by over-drying the skin!
+
+**Prescribed Products:**
+1. [Clarifying Emulsion](/product/clarifying-emulsion) - Oil-free hydration
+2. [Clay Mask](/product/pore-clearing-clay-mask) - Absorbs excess oil
+3. [Matte Sunscreen SPF37](/product/matte-priming-uv-shield-sunscreen-spf-37) - Protection with matte finish
+4. [Exfoliating Toner](/product/gentle-exfoliating-toner) - Cleans pores
+
+**Common Mistake to Avoid:**
+Over-cleansing and over-drying makes skin produce MORE oil! Balance is key.
+
+**Suggested Routine:**
+- **Morning:** Gentle cleanser → Clarifying moisturizer → Matte sunscreen
+- **Evening:** Cleanser → Toner → Clay mask (twice weekly) → Moisturizer
+
+Do you have questions about this routine?`,
+
+    aging: `An important topic for preventive care
+
+**Diagnosis:**
+Signs of aging include decreased collagen and elastin production, and accumulated sun damage. Prevention and early treatment make a significant difference.
+
+**Prescribed Products:**
+1. [Hyaluronic Acid Serum](/product/anti-ageing-hyaluronic-acid-face-serum) - Fill fine lines
+2. [Skin Reinforcement Cream](/product/skin-reinforcement-get-type-cream) - Firming and elasticity
+3. [Sunscreen SPF50+](/product/soft-finish-sun-milk-spf50) - **The most important product!**
+4. [Fermented Soybean Mask](/product/fermented-soybean-bio-cellulose-mask) - Intensive nourishment
+
+**Important Medical Fact:**
+80% of skin aging is caused by the sun. Sunscreen is the best anti-aging product!
+
+**Anti-Aging Routine:**
+- **Morning:** Serum on damp skin → Cream → **Sunscreen** (reapply every 2 hours)
+- **Evening:** Serum → Reinforcement cream → Weekly mask
+
+Would you like additional tips for specific areas like eyes or neck?`,
+
+    sensitive: `Sensitive skin needs special care
+
+**Diagnosis:**
+Your skin has a weakened barrier and reacts easily to triggers. The goal is to strengthen the barrier and avoid irritants.
+
+**Prescribed Products:**
+1. [Clarifying Emulsion](/product/clarifying-emulsion) - Gentle and soothing
+2. [Rice Sheet Mask](/product/rice-sheet-mask) - Calming and hydrating
+3. [Jelly Cream](/product/dewy-glow-jelly-cream) - Light protection
+4. [Safe Block Sunscreen SPF45](/product/all-around-safe-block-essence-sun-spf45) - For sensitive skin
+
+**Golden Rules for Sensitive Skin:**
+- Introduce only one new product every two weeks
+- Patch test any new product first
+- Avoid: fragrances, alcohol, harsh exfoliants, hot water
+
+**When to see a doctor?**
+If redness persists with visible blood vessels or pustules, it might be "Rosacea" requiring medical treatment.
+
+Would you like help building a simple routine?`,
+
+    sun: `Sun protection is the foundation of skincare!
+
+**Why is sunscreen important?**
+UV rays are responsible for:
+- 80% of skin aging
+- Dark spots and melasma
+- Increased skin cancer risk
+
+**Available Sunscreens:**
+1. [Sun Milk SPF50+](/product/soft-finish-sun-milk-spf50) - Maximum protection, soft finish
+2. [Matte Sunscreen SPF37](/product/matte-priming-uv-shield-sunscreen-spf-37) - For oily skin
+3. [Safe Block Sunscreen SPF45](/product/all-around-safe-block-essence-sun-spf45) - For sensitive skin
+
+**Proper Application:**
+- Amount: Two finger lengths for face and neck
+- Apply 15-30 minutes before going outside
+- **Reapply every 2 hours** - this is essential!
+- Don't forget: ears, neck, back of hands
+
+Would you like help choosing the best one for your skin type?`,
+
+    products: `Happy to present our products to you
+
+**Eva Cosmetics Products:**
+
+**For Cleansing:**
+- [Lychee Soda Bubble Cleanser](/product/lychee-soda-bubble-cleanser)
+- [Clay Mask](/product/pore-clearing-clay-mask)
+- [Exfoliating Toner](/product/gentle-exfoliating-toner)
+
+**For Hydration:**
+- [Hyaluronic Acid Serum](/product/anti-ageing-hyaluronic-acid-face-serum)
+- [Super Aqua Cream](/product/super-aqua-cream)
+- [Dewy Glow Jelly Cream](/product/dewy-glow-jelly-cream)
+- [Clarifying Emulsion](/product/clarifying-emulsion)
+
+**For Sun Protection:**
+- [Sun Milk SPF50+](/product/soft-finish-sun-milk-spf50)
+- [Matte Sunscreen SPF37](/product/matte-priming-uv-shield-sunscreen-spf-37)
+- [Safe Block Sunscreen SPF45](/product/all-around-safe-block-essence-sun-spf45)
+
+**For Masks & Intensive Treatment:**
+- [Rice Sheet Mask](/product/rice-sheet-mask)
+- [Fermented Soybean Mask](/product/fermented-soybean-bio-cellulose-mask)
+- [Skin Reinforcement Cream](/product/skin-reinforcement-get-type-cream)
+
+**For Hair & Body:**
+- [Hair Repair Ampoule](/product/repair-ex-damage-care-hair-fill-up-ampoule)
+- [Body Peeling Gel](/product/spa-body-peeling-gel)
+
+Tell me about your skin type and concerns, and I'll help you choose the best products!`,
+
+    greeting: `Hello and welcome!
+
+Happy to have you at Eva Clinic. I'm Dr. Eva, a specialized dermatologist.
+
+How can I help you today? You can tell me about:
+- Any skin concern you're facing
+- Your skin type and needs
+- Questions about a specific product
+- Request a personalized skincare routine
+
+I'm here to listen`,
+
+    default: `Thank you for your question
+
+To help you better, could you tell me more about:
+
+1. **Your skin type:** Dry, oily, combination, sensitive?
+2. **Main concern:** Acne, dryness, wrinkles, dark spots?
+3. **Your age:** Helps me provide appropriate advice
+4. **Current routine:** Are you using any specific products?
+
+The more I know, the better I can prescribe the right treatment for you.
+
+Or you can simply describe what you notice on your skin`,
+  },
+};
+
+// ─────────────────────────────────────────────────────────────
+// AI DERMATOLOGIST COMPONENT
 // ─────────────────────────────────────────────────────────────
 
 const AIDermatologist = () => {
-  const { language } = useLanguage();
-  const { data: products, isLoading: productsLoading } = useProducts();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [language, setLanguage] = useState<Language | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const t = language ? translations[language] : null;
   const isRTL = language === "ar";
 
-  const t = (key: keyof typeof translations) => {
-    return translations[key][language as "en" | "ar"] || translations[key].en;
+  // Detect language from text
+  const detectLanguage = (text: string): Language => {
+    const arabicRegex = /[\u0600-\u06FF]/;
+    return arabicRegex.test(text) ? "ar" : "en";
   };
 
+  // Welcome message when language is selected
   useEffect(() => {
-    if (isOpen && messages.length === 0) {
-      setMessages([
-        {
-          id: "greeting",
-          type: "bot",
-          content: t("greeting"),
-        },
-      ]);
+    if (isOpen && language && messages.length === 0) {
+      const welcomeMessage: Message = {
+        id: "welcome",
+        role: "assistant",
+        content: translations[language].welcome,
+        timestamp: new Date(),
+      };
+      setMessages([welcomeMessage]);
+    }
+  }, [isOpen, language, messages.length]);
+
+  // Auto scroll
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  // Focus input when opened
+  useEffect(() => {
+    if (isOpen && language) {
+      setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [isOpen, language]);
 
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messages]);
-
-  useEffect(() => {
-    if (isOpen && inputRef.current) {
-      setTimeout(() => inputRef.current?.focus(), 300);
-    }
-  }, [isOpen]);
-
-  const findMatchingConditions = (text: string): MedicalCondition[] => {
-    const lowerText = text.toLowerCase();
-    const matches: MedicalCondition[] = [];
-
-    for (const condition of Object.values(medicalKnowledgeBase)) {
-      const keywords = [...condition.keywords.en, ...condition.keywords.ar];
-      for (const keyword of keywords) {
-        if (lowerText.includes(keyword.toLowerCase())) {
-          if (!matches.includes(condition)) {
-            matches.push(condition);
-          }
-          break;
-        }
-      }
-    }
-
-    return matches;
+  // Reset on close
+  const handleClose = () => {
+    setIsOpen(false);
+    setMessages([]);
+    setLanguage(null);
   };
 
-  const getProductRecommendations = (productNames: string[]): ProductRecommendation[] => {
-    if (!products) return [];
+  // Generate local response
+  const generateResponse = (userInput: string, lang: Language): string => {
+    const input = userInput.toLowerCase();
+    const r = responses[lang];
 
-    const recommendations: ProductRecommendation[] = [];
-
-    for (const name of productNames) {
-      const product = products.find(
-        (p) => p.name.toLowerCase().includes(name.toLowerCase()) || name.toLowerCase().includes(p.name.toLowerCase())
-      );
-      if (product) {
-        recommendations.push({
-          id: product.id,
-          name: product.name,
-          price: product.price,
-          image: resolveProductImage(product.image),
-          description: product.description,
-          skinType: product.skin_type,
-        });
-      }
+    // Acne
+    if (
+      input.includes("حب") ||
+      input.includes("بثور") ||
+      input.includes("acne") ||
+      input.includes("pimple") ||
+      input.includes("breakout")
+    ) {
+      return r.acne;
     }
 
-    return recommendations;
+    // Dry skin
+    if (
+      input.includes("جفاف") ||
+      input.includes("جاف") ||
+      input.includes("dry") ||
+      input.includes("dehydrat")
+    ) {
+      return r.dry;
+    }
+
+    // Oily skin
+    if (
+      input.includes("دهن") ||
+      input.includes("زيت") ||
+      input.includes("لامع") ||
+      input.includes("oily") ||
+      input.includes("greasy") ||
+      input.includes("shiny")
+    ) {
+      return r.oily;
+    }
+
+    // Aging
+    if (
+      input.includes("تجاعيد") ||
+      input.includes("شيخوخ") ||
+      input.includes("خطوط") ||
+      input.includes("wrinkle") ||
+      input.includes("aging") ||
+      input.includes("fine line")
+    ) {
+      return r.aging;
+    }
+
+    // Sensitive skin
+    if (
+      input.includes("حساس") ||
+      input.includes("تهيج") ||
+      input.includes("احمرار") ||
+      input.includes("sensitive") ||
+      input.includes("irritat") ||
+      input.includes("redness")
+    ) {
+      return r.sensitive;
+    }
+
+    // Sun protection
+    if (
+      input.includes("شمس") ||
+      input.includes("واقي") ||
+      input.includes("spf") ||
+      input.includes("sun") ||
+      input.includes("protect")
+    ) {
+      return r.sun;
+    }
+
+    // Products
+    if (
+      input.includes("منتج") ||
+      input.includes("product") ||
+      input.includes("جميع") ||
+      input.includes("كل") ||
+      input.includes("all") ||
+      input.includes("show")
+    ) {
+      return r.products;
+    }
+
+    // Greeting
+    if (
+      input.includes("مرحب") ||
+      input.includes("السلام") ||
+      input.includes("اهلا") ||
+      input.includes("هلا") ||
+      input.includes("hello") ||
+      input.includes("hi") ||
+      input.includes("hey")
+    ) {
+      return r.greeting;
+    }
+
+    return r.default;
   };
 
-  const handleSend = async () => {
-    if (!input.trim() || isTyping) return;
+  // Simulate typing effect - quick 1.5 second delay
+  const simulateTyping = async (): Promise<void> => {
+    return new Promise((resolve) => setTimeout(resolve, 1500));
+  };
+
+  // Send message
+  const sendMessage = async () => {
+    if (!input.trim() || isLoading) return;
+
+    const userText = input.trim();
+
+    // Detect language from first message
+    if (!language) {
+      const detectedLang = detectLanguage(userText);
+      setLanguage(detectedLang);
+    }
+
+    const currentLang = language || detectLanguage(userText);
 
     const userMessage: Message = {
       id: Date.now().toString(),
-      type: "user",
-      content: input,
+      role: "user",
+      content: userText,
+      timestamp: new Date(),
     };
 
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
+    setIsLoading(true);
     setIsTyping(true);
 
-    const loadingId = (Date.now() + 1).toString();
-    setMessages((prev) => [
-      ...prev,
-      { id: loadingId, type: "loading", content: t("analyzing") },
-    ]);
+    // Add typing delay (1.5 seconds)
+    await simulateTyping();
 
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    // Generate response locally
+    const localResponse = generateResponse(userText, currentLang);
+    const assistantMessage: Message = {
+      id: (Date.now() + 1).toString(),
+      role: "assistant",
+      content: localResponse,
+      timestamp: new Date(),
+    };
 
-    setMessages((prev) => prev.filter((m) => m.id !== loadingId));
-
-    const matchedConditions = findMatchingConditions(input);
-
-    if (matchedConditions.length > 0) {
-      const allProductNames = [...new Set(matchedConditions.flatMap((c) => c.recommendedProducts))];
-      const recommendations = getProductRecommendations(allProductNames);
-      
-      const lang = language as "en" | "ar";
-      const combinedDiagnosis = matchedConditions.map((c) => c.diagnosis[lang] || c.diagnosis.en).join("\n\n");
-      const combinedSideEffects = [...new Set(matchedConditions.flatMap((c) => c.sideEffects[lang] || c.sideEffects.en))];
-      const combinedUsage = matchedConditions.map((c) => c.usage[lang] || c.usage.en).join("\n\n");
-      const combinedMedicalAdvice = matchedConditions.map((c) => c.medicalAdvice[lang] || c.medicalAdvice.en).join("\n\n");
-
-      const botMessage: Message = {
-        id: (Date.now() + 2).toString(),
-        type: "diagnosis",
-        content: combinedDiagnosis,
-        products: recommendations,
-        sideEffects: combinedSideEffects,
-        usage: combinedUsage,
-        medicalAdvice: combinedMedicalAdvice,
-      };
-
-      setMessages((prev) => [...prev, botMessage]);
-    } else {
-      const showAllKeywords = ["all products", "show products", "list products", "what products", "available products", "جميع المنتجات", "كل المنتجات", "عرض المنتجات", "المنتجات المتاحة"];
-      const wantsAllProducts = showAllKeywords.some((kw) => input.toLowerCase().includes(kw));
-
-      if (wantsAllProducts && products) {
-        const allRecommendations: ProductRecommendation[] = products.map((p) => ({
-          id: p.id,
-          name: p.name,
-          price: p.price,
-          image: resolveProductImage(p.image),
-          description: p.description,
-          skinType: p.skin_type,
-        }));
-
-        const botMessage: Message = {
-          id: (Date.now() + 2).toString(),
-          type: "diagnosis",
-          content: t("allProducts"),
-          products: allRecommendations,
-        };
-
-        setMessages((prev) => [...prev, botMessage]);
-      } else {
-        const botMessage: Message = {
-          id: (Date.now() + 2).toString(),
-          type: "bot",
-          content: t("noMatch"),
-        };
-
-        setMessages((prev) => [...prev, botMessage]);
-      }
-    }
-
+    setMessages((prev) => [...prev, assistantMessage]);
+    setIsLoading(false);
     setIsTyping(false);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
+  // Format message with links and bold
+  const formatMessage = (content: string) => {
+    const parts = content.split(/(\[.*?\]\(.*?\))/g);
 
-  const showAllProducts = () => {
-    if (!products || productsLoading) return;
-
-    setIsTyping(true);
-
-    const loadingId = Date.now().toString();
-    setMessages((prev) => [
-      ...prev,
-      { id: loadingId, type: "loading", content: t("analyzing") },
-    ]);
-
-    setTimeout(() => {
-      setMessages((prev) => prev.filter((m) => m.id !== loadingId));
-
-      const allRecommendations: ProductRecommendation[] = products.map((p) => ({
-        id: p.id,
-        name: p.name,
-        price: p.price,
-        image: resolveProductImage(p.image),
-        description: p.description,
-        skinType: p.skin_type,
-      }));
-
-      const botMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        type: "diagnosis",
-        content: t("allProducts"),
-        products: allRecommendations,
-      };
-
-      setMessages((prev) => [...prev, botMessage]);
-      setIsTyping(false);
-    }, 1000);
+    return parts.map((part, index) => {
+      const linkMatch = part.match(/\[(.*?)\]\((.*?)\)/);
+      if (linkMatch) {
+        const [, text, url] = linkMatch;
+        return (
+          <Link
+            key={index}
+            to={url}
+            className="text-pink-600 hover:text-pink-700 underline underline-offset-2 font-medium"
+            onClick={() => setIsOpen(false)}
+          >
+            {text}
+          </Link>
+        );
+      }
+      const boldParts = part.split(/(\*\*.*?\*\*)/g);
+      return boldParts.map((boldPart, boldIndex) => {
+        const boldMatch = boldPart.match(/\*\*(.*?)\*\*/);
+        if (boldMatch) {
+          return <strong key={`${index}-${boldIndex}`}>{boldMatch[1]}</strong>;
+        }
+        return <span key={`${index}-${boldIndex}`}>{boldPart}</span>;
+      });
+    });
   };
 
   return (
@@ -685,228 +710,263 @@ const AIDermatologist = () => {
       {/* Floating Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 ${isRTL ? "left-6" : "right-6"} z-50 flex items-center gap-2 bg-primary text-primary-foreground px-5 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 ${isOpen ? "scale-0 opacity-0" : "scale-100 opacity-100"}`}
-        aria-label="Open Dermatology Consultation"
+        className={`fixed bottom-6 ${isRTL ? "left-6" : "right-6"} z-50 flex items-center gap-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 ${
+          isOpen ? "hidden" : "flex"
+        }`}
+        style={{ padding: "14px 20px" }}
       >
-        <Stethoscope className="h-5 w-5" />
-        <span className="font-medium hidden sm:inline">{isRTL ? "د. إيڤا" : "Dr. Eva"}</span>
+        <div className="relative">
+          <Stethoscope className="w-6 h-6" />
+          <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white animate-pulse" />
+        </div>
+        <div className="flex flex-col items-start">
+          <span className="font-bold text-sm">Dr. Eva</span>
+          <span className="text-xs opacity-90">Dermatologist</span>
+        </div>
       </button>
 
       {/* Chat Window */}
-      <div
-        dir={isRTL ? "rtl" : "ltr"}
-        className={`fixed bottom-0 ${isRTL ? "left-0 sm:left-6" : "right-0 sm:right-6"} sm:bottom-6 z-50 w-full sm:w-[420px] h-[100dvh] sm:h-[600px] sm:max-h-[80vh] bg-card border border-border sm:rounded-2xl shadow-2xl flex flex-col transition-all duration-300 ${isOpen ? "translate-y-0 opacity-100" : "translate-y-full sm:translate-y-8 opacity-0 pointer-events-none"}`}
-      >
-        {/* Header */}
-        <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground p-4 sm:rounded-t-2xl flex items-center gap-3">
-          <div className="relative">
-            <Avatar className="h-12 w-12 border-2 border-primary-foreground/30">
-              <AvatarFallback className="bg-primary-foreground/20 text-primary-foreground">
-                <Stethoscope className="h-6 w-6" />
-              </AvatarFallback>
-            </Avatar>
-            <span className={`absolute bottom-0 ${isRTL ? "left-0" : "right-0"} h-3 w-3 bg-green-400 rounded-full border-2 border-primary`} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="font-bold text-lg truncate">{t("title")}</h3>
-            <p className="text-xs opacity-90 truncate">{t("subtitle")}</p>
-          </div>
-          <button
-            onClick={() => setIsOpen(false)}
-            className="p-2 hover:bg-primary-foreground/20 rounded-full transition-colors"
-            aria-label="Close"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-
-        {/* Messages */}
-        <ScrollArea className="flex-1 p-4" ref={scrollRef}>
-          <div className="space-y-4">
-            {messages.map((message) => (
-              <div key={message.id}>
-                {message.type === "user" && (
-                  <div className={`flex ${isRTL ? "justify-start" : "justify-end"}`}>
-                    <div className={`flex items-start gap-2 max-w-[85%] ${isRTL ? "flex-row-reverse" : ""}`}>
-                      <div className={`bg-primary text-primary-foreground rounded-2xl ${isRTL ? "rounded-bl-md" : "rounded-br-md"} px-4 py-2`}>
-                        <p className="text-sm">{message.content}</p>
-                      </div>
-                      <Avatar className="h-8 w-8 flex-shrink-0">
-                        <AvatarFallback className="bg-muted text-muted-foreground">
-                          <User className="h-4 w-4" />
-                        </AvatarFallback>
-                      </Avatar>
-                    </div>
-                  </div>
-                )}
-
-                {message.type === "bot" && (
-                  <div className={`flex ${isRTL ? "justify-end" : "justify-start"}`}>
-                    <div className={`flex items-start gap-2 max-w-[85%] ${isRTL ? "flex-row-reverse" : ""}`}>
-                      <Avatar className="h-8 w-8 flex-shrink-0 border border-primary/20">
-                        <AvatarFallback className="bg-primary/10 text-primary">
-                          <Stethoscope className="h-4 w-4" />
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className={`bg-secondary text-secondary-foreground rounded-2xl ${isRTL ? "rounded-br-md" : "rounded-bl-md"} px-4 py-2`}>
-                        <p className="text-sm whitespace-pre-line">{message.content}</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {message.type === "loading" && (
-                  <div className={`flex ${isRTL ? "justify-end" : "justify-start"}`}>
-                    <div className={`flex items-start gap-2 ${isRTL ? "flex-row-reverse" : ""}`}>
-                      <Avatar className="h-8 w-8 flex-shrink-0 border border-primary/20">
-                        <AvatarFallback className="bg-primary/10 text-primary">
-                          <Stethoscope className="h-4 w-4" />
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className={`bg-secondary text-secondary-foreground rounded-2xl ${isRTL ? "rounded-br-md" : "rounded-bl-md"} px-4 py-3 flex items-center gap-2`}>
-                        <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                        <p className="text-sm text-muted-foreground">{message.content}</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {message.type === "diagnosis" && (
-                  <div className={`flex ${isRTL ? "justify-end" : "justify-start"}`}>
-                    <div className={`flex items-start gap-2 w-full max-w-[95%] ${isRTL ? "flex-row-reverse" : ""}`}>
-                      <Avatar className="h-8 w-8 flex-shrink-0 border border-primary/20">
-                        <AvatarFallback className="bg-primary/10 text-primary">
-                          <Stethoscope className="h-4 w-4" />
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 space-y-3">
-                        {/* Diagnosis */}
-                        <div className={`bg-secondary text-secondary-foreground rounded-2xl ${isRTL ? "rounded-br-md" : "rounded-bl-md"} px-4 py-3`}>
-                          <p className="text-sm whitespace-pre-line leading-relaxed">{message.content}</p>
-                        </div>
-
-                        {/* Products */}
-                        {message.products && message.products.length > 0 && (
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2 text-xs font-semibold text-primary">
-                              <Sparkles className="h-3 w-3" />
-                              {t("prescribedTreatment")}
-                            </div>
-                            <div className="grid gap-2">
-                              {message.products.map((product) => (
-                                <Card key={product.id} className="p-3 hover:shadow-md transition-shadow">
-                                  <div className={`flex gap-3 ${isRTL ? "flex-row-reverse" : ""}`}>
-                                    <img
-                                      src={product.image}
-                                      alt={translateProductName(product.name, language)}
-                                      className="w-16 h-16 object-contain rounded-lg bg-secondary/50"
-                                    />
-                                    <div className={`flex-1 min-w-0 ${isRTL ? "text-right" : ""}`}>
-                                      <h4 className="font-medium text-sm truncate">
-                                        {translateProductName(product.name, language)}
-                                      </h4>
-                                      <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
-                                        {translateProductDescription(product.description, product.name, language)}
-                                      </p>
-                                      <div className={`flex items-center justify-between mt-2 ${isRTL ? "flex-row-reverse" : ""}`}>
-                                        <span className="font-bold text-primary">${product.price.toFixed(2)}</span>
-                                        <Link to={`/product/${product.id}`}>
-                                          <Button size="sm" variant="outline" className="h-7 text-xs gap-1">
-                                            {t("viewProduct")}
-                                            <ExternalLink className="h-3 w-3" />
-                                          </Button>
-                                        </Link>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </Card>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Side Effects */}
-                        {message.sideEffects && message.sideEffects.length > 0 && (
-                          <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl p-3">
-                            <div className="flex items-center gap-2 text-xs font-semibold text-amber-700 dark:text-amber-400 mb-2">
-                              <AlertCircle className="h-3 w-3" />
-                              {t("sideEffectsTitle")}
-                            </div>
-                            <ul className={`text-xs text-amber-800 dark:text-amber-300 space-y-1 ${isRTL ? "pr-2" : "pl-2"}`}>
-                              {message.sideEffects.map((effect, idx) => (
-                                <li key={idx} className="flex items-start gap-2">
-                                  <span className="text-amber-500 mt-0.5 flex-shrink-0">•</span>
-                                  <span>{effect}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-
-                        {/* Usage */}
-                        {message.usage && (
-                          <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-xl p-3">
-                            <div className="flex items-center gap-2 text-xs font-semibold text-blue-700 dark:text-blue-400 mb-2">
-                              <BookOpen className="h-3 w-3" />
-                              {t("usageInstructions")}
-                            </div>
-                            <p className="text-xs text-blue-800 dark:text-blue-300 whitespace-pre-line leading-relaxed">{message.usage}</p>
-                          </div>
-                        )}
-
-                        {/* Medical Advice */}
-                        {message.medicalAdvice && (
-                          <div className="bg-primary/5 border border-primary/20 rounded-xl p-3">
-                            <div className="flex items-center gap-2 text-xs font-semibold text-primary mb-2">
-                              <ShieldCheck className="h-3 w-3" />
-                              {t("medicalAdviceTitle")}
-                            </div>
-                            <p className="text-xs text-muted-foreground whitespace-pre-line leading-relaxed">{message.medicalAdvice}</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
+      {isOpen && (
+        <Card
+          className={`fixed bottom-6 ${isRTL ? "left-6" : "right-6"} z-50 w-[380px] h-[580px] flex flex-col shadow-2xl border-0 overflow-hidden`}
+          style={{
+            background: "linear-gradient(135deg, #fff5f7 0%, #ffe4e8 100%)",
+            borderRadius: "24px",
+          }}
+          dir={isRTL ? "rtl" : "ltr"}
+        >
+          {/* Header */}
+          <div className="bg-gradient-to-r from-pink-500 to-rose-500 text-white p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <Avatar className="w-12 h-12 border-2 border-white/30">
+                    <AvatarImage src="/doctor-eva.png" />
+                    <AvatarFallback className="bg-white/20 text-white font-bold">
+                      <Stethoscope className="w-6 h-6" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 rounded-full border-2 border-pink-500" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg">
+                    {t?.doctorName || "Dr. Eva"}
+                  </h3>
+                  <p className="text-xs text-white/80 flex items-center gap-1">
+                    <ShieldCheck className="w-3 h-3" />
+                    {t?.doctorTitle || "Consultant Dermatologist"}
+                  </p>
+                </div>
               </div>
-            ))}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleClose}
+                className="text-white hover:bg-white/20 rounded-full"
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
           </div>
-        </ScrollArea>
 
-        {/* Quick Actions */}
-        <div className="px-4 py-2 border-t border-border flex gap-2 overflow-x-auto">
-          <Button
-            size="sm"
-            variant="outline"
-            className="text-xs whitespace-nowrap flex-shrink-0"
-            onClick={showAllProducts}
-            disabled={isTyping || productsLoading}
-          >
-            {productsLoading ? <Loader2 className="h-3 w-3 animate-spin me-1" /> : null}
-            {t("showAllProducts")}
-          </Button>
-        </div>
+          {/* Language Selection */}
+          {!language && (
+            <div className="flex-1 flex flex-col items-center justify-center p-6 gap-6">
+              <div className="text-center">
+                <Globe className="w-16 h-16 text-pink-400 mx-auto mb-4" />
+                <h3 className="text-xl font-bold text-gray-800 mb-2">
+                  Choose Your Language
+                </h3>
+                <p className="text-gray-500 text-sm">
+                  اختر لغتك المفضلة
+                </p>
+              </div>
+              <div className="flex gap-4">
+                <Button
+                  onClick={() => setLanguage("ar")}
+                  className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white px-8 py-6 rounded-2xl text-lg font-bold"
+                >
+                  العربية
+                </Button>
+                <Button
+                  onClick={() => setLanguage("en")}
+                  className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white px-8 py-6 rounded-2xl text-lg font-bold"
+                >
+                  English
+                </Button>
+              </div>
+            </div>
+          )}
 
-        {/* Input */}
-        <div className="p-4 border-t border-border">
-          <div className={`flex gap-2 ${isRTL ? "flex-row-reverse" : ""}`}>
-            <Input
-              ref={inputRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={t("placeholder")}
-              className="flex-1"
-              disabled={isTyping}
-              dir={isRTL ? "rtl" : "ltr"}
-            />
-            <Button onClick={handleSend} disabled={!input.trim() || isTyping} size="icon">
-              {isTyping ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className={`h-4 w-4 ${isRTL ? "rotate-180" : ""}`} />}
-            </Button>
-          </div>
-          <p className="text-[10px] text-muted-foreground text-center mt-2">{t("disclaimer")}</p>
-        </div>
-      </div>
+          {/* Chat Area */}
+          {language && (
+            <>
+              {/* Messages */}
+              <ScrollArea className="flex-1 p-4">
+                <div className="space-y-4">
+                  {messages.map((message) => (
+                    <div
+                      key={message.id}
+                      className={`flex gap-3 ${
+                        message.role === "user" ? "flex-row-reverse" : ""
+                      }`}
+                    >
+                      <Avatar className="w-8 h-8 flex-shrink-0">
+                        {message.role === "assistant" ? (
+                          <>
+                            <AvatarImage src="/doctor-eva.png" />
+                            <AvatarFallback className="bg-pink-500 text-white">
+                              <Stethoscope className="w-4 h-4" />
+                            </AvatarFallback>
+                          </>
+                        ) : (
+                          <AvatarFallback className="bg-gray-200">
+                            <User className="w-4 h-4 text-gray-600" />
+                          </AvatarFallback>
+                        )}
+                      </Avatar>
+                      <div
+                        className={`max-w-[85%] rounded-2xl px-4 py-3 ${
+                          message.role === "user"
+                            ? `bg-pink-500 text-white ${isRTL ? "rounded-tr-none" : "rounded-tl-none"}`
+                            : `bg-white shadow-sm ${isRTL ? "rounded-tl-none" : "rounded-tr-none"}`
+                        }`}
+                      >
+                        <div className="text-sm leading-relaxed whitespace-pre-wrap">
+                          {message.role === "assistant"
+                            ? formatMessage(message.content)
+                            : message.content}
+                        </div>
+                        <div
+                          className={`text-[10px] mt-2 flex items-center gap-1 ${
+                            message.role === "user"
+                              ? "text-white/70"
+                              : "text-gray-400"
+                          }`}
+                        >
+                          <Clock className="w-3 h-3" />
+                          {message.timestamp.toLocaleTimeString(
+                            isRTL ? "ar-SA" : "en-US",
+                            {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            }
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Typing indicator */}
+                  {isTyping && (
+                    <div className="flex gap-3">
+                      <Avatar className="w-8 h-8 flex-shrink-0">
+                        <AvatarFallback className="bg-pink-500 text-white">
+                          <Stethoscope className="w-4 h-4" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className={`bg-white rounded-2xl ${isRTL ? "rounded-tl-none" : "rounded-tr-none"} px-4 py-3 shadow-sm`}>
+                        <div className="flex items-center gap-2">
+                          <div className="flex gap-1">
+                            <span
+                              className="w-2 h-2 bg-pink-500 rounded-full animate-bounce"
+                              style={{ animationDelay: "0ms" }}
+                            />
+                            <span
+                              className="w-2 h-2 bg-pink-500 rounded-full animate-bounce"
+                              style={{ animationDelay: "150ms" }}
+                            />
+                            <span
+                              className="w-2 h-2 bg-pink-500 rounded-full animate-bounce"
+                              style={{ animationDelay: "300ms" }}
+                            />
+                          </div>
+                          <span className="text-sm text-gray-500">
+                            {t.typing}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div ref={messagesEndRef} />
+                </div>
+              </ScrollArea>
+
+              {/* Quick suggestions */}
+              {messages.length <= 1 && (
+                <div className="px-4 pb-2">
+                  <div className="flex flex-wrap gap-2">
+                    {t.suggestions.map((suggestion) => (
+                      <button
+                        key={suggestion}
+                        onClick={() => {
+                          setInput(suggestion);
+                          setTimeout(() => sendMessage(), 100);
+                        }}
+                        className="text-xs bg-white hover:bg-pink-500 hover:text-white text-pink-600 border border-pink-200 rounded-full px-3 py-1.5 transition-colors"
+                      >
+                        {suggestion}
+                      </button>
+                    ))}
+                    <button
+                      onClick={() => {
+                        setInput(
+                          language === "ar"
+                            ? "عرض جميع المنتجات"
+                            : "Show all products"
+                        );
+                        setTimeout(() => sendMessage(), 100);
+                      }}
+                      className="text-xs bg-pink-500 text-white hover:bg-pink-600 rounded-full px-3 py-1.5 transition-colors flex items-center gap-1"
+                    >
+                      <Sparkles className="w-3 h-3" />
+                      {t.showAllProducts}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Input */}
+              <div className="p-4 bg-white/50 border-t border-pink-100">
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    sendMessage();
+                  }}
+                  className="flex gap-2"
+                >
+                  <Input
+                    ref={inputRef}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder={t.placeholder}
+                    className={`flex-1 rounded-full border-pink-200 focus-visible:ring-pink-500 ${isRTL ? "text-right" : "text-left"}`}
+                    disabled={isLoading}
+                    dir={isRTL ? "rtl" : "ltr"}
+                  />
+                  <Button
+                    type="submit"
+                    size="icon"
+                    disabled={isLoading || !input.trim()}
+                    className="rounded-full bg-pink-500 hover:bg-pink-600 w-10 h-10"
+                  >
+                    {isLoading ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <Send className="w-5 h-5" />
+                    )}
+                  </Button>
+                </form>
+                <p className="text-[10px] text-gray-400 text-center mt-2 flex items-center justify-center gap-1">
+                  <AlertTriangle className="w-3 h-3" />
+                  {t.disclaimer}
+                </p>
+              </div>
+            </>
+          )}
+        </Card>
+      )}
     </>
   );
 };
