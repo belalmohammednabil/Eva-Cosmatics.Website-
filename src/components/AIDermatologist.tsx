@@ -627,12 +627,11 @@ const AIDermatologist = () => {
     return r.default;
   };
 
-  // Simulate typing effect
-  const simulateTyping = async (response: string): Promise<void> => {
-    return new Promise((resolve) => {
-      const delay = Math.min(1500 + response.length * 2, 3000);
-      setTimeout(resolve, delay);
-    });
+  // Simulate typing effect - realistic delay like a real chat
+  const simulateTyping = async (): Promise<void> => {
+    // Random delay between 2-4 seconds to feel natural
+    const delay = 2000 + Math.random() * 2000;
+    return new Promise((resolve) => setTimeout(resolve, delay));
   };
 
   // Send message
@@ -660,6 +659,9 @@ const AIDermatologist = () => {
     setInput("");
     setIsLoading(true);
     setIsTyping(true);
+
+    // Add realistic thinking delay
+    await simulateTyping();
 
     try {
       // Try API first
@@ -716,9 +718,7 @@ const AIDermatologist = () => {
 
       setMessages((prev) => [...prev, assistantMessage]);
     } catch {
-      // Fallback to local response with typing simulation
-      await simulateTyping(userText);
-      
+      // Fallback to local response
       const localResponse = generateResponse(userText, currentLang);
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
