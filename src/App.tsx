@@ -8,6 +8,7 @@ import { CartProvider } from "@/contexts/CartContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { WishlistProvider } from "@/contexts/WishlistContext";
 import ScrollToTop from "./components/ScrollToTop";
+import AIDermatologist from "./components/AIDermatologist";
 import Index from "./pages/Index";
 import BestSellers from "./pages/BestSellers";
 import AboutUs from "./pages/AboutUs";
@@ -32,6 +33,7 @@ const App = () => (
               <Sonner />
               <BrowserRouter>
                 <ScrollToTop />
+                <AIDermatologist />
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/best-sellers" element={<BestSellers />} />
