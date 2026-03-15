@@ -451,7 +451,7 @@ const medicalKnowledgeBase: Record<string, MedicalCondition> = {
     },
     diagnosis: {
       en: "Pore size is primarily determined by genetics and sebum production. Enlarged pores often result from excess sebum, loss of skin elasticity, or sun damage. Given your {skinType} skin type, while pore size cannot be permanently changed, their appearance can be minimized.",
-      ar: "حجم المسام يتحدد أساساً بالوراثة وإنتاج الدهون. المسام الواسعة غالباً تنتج عن الدهون الزائدة، أو فقدان مرونة الجلد، أو تلف الشمس. بالنظر إلى نوع بشرتك {skinType}، بينما لا يمكن تغيير حجم المسام بشكل دائم، يمكن تقليل مظهرها.",
+      ar: "حجم المسام يتحدد أساساً بالوراثة وإنتاج الدهون. ال��سام الواسعة غالباً تنتج عن الدهون الزائدة، أو فقدان مرونة الجلد، أو تلف الشمس. بالنظر إلى نوع بشرتك {skinType}، بينما لا يمكن تغيير حجم المسام بشكل دائم، يمكن تقليل مظهرها.",
     },
     recommendedProducts: ["Pore Clearing Clay Mask 2X", "Gentle Exfoliating Toner", "Clarifying Emulsion", "Lychee Soda Bubble Cleanser"],
     sideEffects: {
@@ -521,22 +521,23 @@ const AIDermatologist = () => {
     }
   }, [isOpen]);
 
-  const startConsultation = () => {
-    setConsultationStage("ask_skin_type");
-    setPatientProfile({});
-    setMessages([
-      {
-        id: Date.now().toString(),
-        type: "bot",
-        content: t("greeting") as string,
-      },
-      {
-        id: (Date.now() + 1).toString(),
-        type: "options",
-        content: "",
-        options: translations.skinTypeOptions[lang],
-      },
-    ]);
+const startConsultation = () => {
+  setConsultationStage("ask_skin_type");
+  setPatientProfile({});
+  const greetingText = t("greeting") as string;
+  setMessages([
+  {
+  id: Date.now().toString(),
+  type: "bot",
+  content: greetingText,
+  },
+  {
+  id: (Date.now() + 1).toString(),
+  type: "options",
+  content: "",
+  options: translations.skinTypeOptions[lang],
+  },
+  ]);
   };
 
   const addBotMessage = (content: string, options?: { label: string; value: string }[]) => {
@@ -871,12 +872,6 @@ ${condition.medicalAdvice[lang]}
             >
               <X className="h-5 w-5" />
             </Button>
-          </div>
-
-          {/* Disclaimer */}
-          <div className="bg-amber-50 dark:bg-amber-950/30 px-4 py-2 text-xs text-amber-800 dark:text-amber-200 flex items-start gap-2">
-            <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
-            <span>{t("disclaimer")}</span>
           </div>
 
           {/* Messages */}
