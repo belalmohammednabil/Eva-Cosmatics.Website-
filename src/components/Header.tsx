@@ -61,11 +61,8 @@ const Header = () => {
     setLoading(true);
     const { error } = await signIn(email, password);
     if (error) {
-      if (error.message.includes("Invalid login")) {
-        toast({ title: t("error"), description: t("invalidCredentials"), variant: "destructive" });
-      } else {
-        toast({ title: t("error"), description: error.message, variant: "destructive" });
-      }
+      toast({ title: t("error"), description: t("invalidCredentials"), variant: "destructive" });
+      console.warn("Sign in failed");
     } else {
       toast({ title: t("welcomeBack"), description: t("signedInSuccess") });
       setIsAuthOpen(false);
@@ -78,12 +75,8 @@ const Header = () => {
     setLoading(true);
     const { error } = await signUp(email, password, fullName);
     if (error) {
-      if (error.message.includes("already registered")) {
-        toast({ title: t("accountExists"), description: t("pleaseLogin"), variant: "destructive" });
-        setAuthTab("login");
-      } else {
-        toast({ title: t("error"), description: error.message, variant: "destructive" });
-      }
+      toast({ title: t("error"), description: t("invalidCredentials"), variant: "destructive" });
+      console.warn("Sign up failed");
     } else {
       toast({ title: t("welcome"), description: t("accountCreated") });
       setIsAuthOpen(false);
