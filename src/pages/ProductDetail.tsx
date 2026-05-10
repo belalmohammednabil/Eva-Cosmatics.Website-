@@ -72,12 +72,22 @@ const ProductDetail = () => {
 
   const handleSubmitReview = async () => {
     if (!user) { toast({ title: t("pleaseLogin"), description: t("loginToReview"), variant: "destructive" }); return; }
-    if (!reviewForm.content.trim()) { toast({ title: t("reviewRequired"), description: t("pleaseWriteReview"), variant: "destructive" }); return; }
+    const trimmedContent = reviewForm.content.trim();
+    const trimmedTitle = (reviewForm.title || "").trim();
+    if (!trimmedContent) { toast({ title: t("reviewRequired"), description: t("pleaseWriteReview"), variant: "destructive" }); return; }
+    if (trimmedContent.length > 2000 || trimmedTitle.length > 200) {
+      toast({ title: t("error"), description: "Review is too long.", variant: "destructive" });
+      return;
+    }
+    if (!Number.isInteger(reviewForm.rating) || reviewForm.rating < 1 || reviewForm.rating > 5) {
+      toast({ title: t("error"), description: "Invalid rating.", variant: "destructive" });
+      return;
+    }
 
     const { data: profile } = await supabase.from("profiles").select("full_name").eq("user_id", user.id).maybeSingle();
     const { error } = await supabase.from("reviews").insert({
-      product_id: productId, user_id: user.id, rating: reviewForm.rating, title: reviewForm.title,
-      content: reviewForm.content, reviewer_name: profile?.full_name || user.email?.split("@")[0] || "Anonymous", is_verified: true,
+      product_id: productId, user_id: user.id, rating: reviewForm.rating, title: trimmedTitle,
+      content: trimmedContent, reviewer_name: profile?.full_name || user.email?.split("@")[0] || "Anonymous",
     });
 
     if (error) { toast({ title: t("error"), description: t("failedSubmitReview"), variant: "destructive" }); return; }
