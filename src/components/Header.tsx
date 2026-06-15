@@ -32,7 +32,7 @@ const languages: { code: Language; label: string; flag: string }[] = [
 
 const Header = () => {
   const navigate = useNavigate();
-  const { user, isAdmin, signIn, signUp, signInWithGoogle, signInWithFacebook, signInWithTwitter, signOut } = useAuth();
+  const { user, isAdmin, signIn, signUp, signInWithGoogle, signOut } = useAuth();
   const { totalItems } = useCart();
   const { wishlist } = useWishlist();
   const { toast } = useToast();
