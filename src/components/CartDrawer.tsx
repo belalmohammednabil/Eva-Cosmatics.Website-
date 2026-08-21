@@ -53,27 +53,14 @@ const CartDrawer = ({ open, onOpenChange }: CartDrawerProps) => {
     setShowConfirm(false);
     setSubmitting(true);
 
-    const shippingAddress = profile?.address || null;
-    const phoneNumber = profile?.phone || null;
+    // Prices and totals are computed server-side from the catalog
+    const { data, error } = await supabase.functions.invoke("create-order", {
+      body: {
+        items: items.map((item) => ({ product_id: item.id, quantity: item.quantity })),
+      },
+    });
 
-    const { data: order, error: orderError } = await supabase
-      .from("orders")
-      .insert({ user_id: user!.id, total: totalPrice, status: "pending", shipping_address: shippingAddress, phone_number: phoneNumber })
-      .select()
-      .single();
-
-    if (orderError || !order) {
-      toast({ title: t("error"), description: t("error"), variant: "destructive" });
-      setSubmitting(false);
-      return;
-    }
-
-    const orderItems = items.map((item) => ({
-      order_id: order.id, product_name: item.name, quantity: item.quantity, price: item.price,
-    }));
-
-    const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
-    if (itemsError) {
+    if (error || !data?.order_id) {
       toast({ title: t("error"), description: t("error"), variant: "destructive" });
       setSubmitting(false);
       return;
@@ -85,6 +72,7 @@ const CartDrawer = ({ open, onOpenChange }: CartDrawerProps) => {
     navigate("/profile");
     setSubmitting(false);
   };
+
 
   return (
     <>
