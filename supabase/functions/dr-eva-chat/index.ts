@@ -23,6 +23,27 @@ Deno.serve(async (req) => {
 
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
+    // Require an authenticated user so the paid AI endpoint cannot be abused
+    const authHeader = req.headers.get("Authorization") ?? "";
+    if (!authHeader.startsWith("Bearer ")) {
+      return new Response(
+        JSON.stringify({ error: "Authentication required" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    const { data: authData, error: authError } = await supabase.auth.getUser();
+    if (authError || !authData?.user) {
+      return new Response(
+        JSON.stringify({ error: "Authentication required" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
     const { messages, language = "en", userProfile = null } = await req.json();
 
     if (!messages || !Array.isArray(messages)) {
@@ -32,8 +53,15 @@ Deno.serve(async (req) => {
       );
     }
 
+    if (messages.length > 40) {
+      return new Response(
+        JSON.stringify({ error: "conversation too long" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
     // Fetch products from DB so the AI only recommends real items
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
     const { data: products } = await supabase
       .from("products")
       .select("id, name, price, description, category, skin_type, in_stock")
